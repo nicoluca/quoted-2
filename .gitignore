@@ -34,3 +34,6 @@ build/
 
 ### sql ###
 sql/*.sql
+
+### config ###
+src/main/resources/*.properties

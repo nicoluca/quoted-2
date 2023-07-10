@@ -22,6 +22,6 @@ public class Source {
     @NonNull
     private String name;
 
-    @OneToMany(mappedBy = "source")
+    @OneToMany(mappedBy = "source", cascade = CascadeType.MERGE)
     private Set<Quote> quotes;
 }
