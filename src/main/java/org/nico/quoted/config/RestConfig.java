@@ -32,7 +32,9 @@ public class RestConfig implements RepositoryRestConfigurer {
     }
 
     private void configureCors(RepositoryRestConfiguration config, CorsRegistry cors) {
-        cors.addMapping(config.getBasePath() + "/**").allowedOrigins(this.allowedOrigins);
+        cors.addMapping(config.getBasePath() + "/**")
+                .allowedOrigins(this.allowedOrigins)
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH");
     }
 
     private void exposeIds(RepositoryRestConfiguration config) {
