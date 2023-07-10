@@ -14,4 +14,6 @@ public interface QuoteRepository extends PagingAndSortingRepository<Quote, Long>
     Page<Quote> findByTextContainingIgnoreCase(@RequestParam("text") String text, Pageable pageable);
 
     Page<Quote> findBySourceId(@RequestParam("id") Long id, Pageable pageable);
+
+    Page<Quote> findBySourceIsNull(Pageable pageable);
 }
