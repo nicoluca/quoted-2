@@ -32,8 +32,5 @@ build/
 ### VS Code ###
 .vscode/
 
-### sql ###
-sql/*.sql
-
 ### config ###
 src/main/resources/*.properties
