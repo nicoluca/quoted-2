@@ -25,19 +25,19 @@ public class RestConfig implements RepositoryRestConfigurer {
     @Override
     public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config, CorsRegistry cors) {
 
-        exposeIds(config);
-        configureCors(config, cors);
+        exposeEntityIds(config);
+        configureCorsAndAllowedMethods(config, cors);
 
         RepositoryRestConfigurer.super.configureRepositoryRestConfiguration(config, cors);
     }
 
-    private void configureCors(RepositoryRestConfiguration config, CorsRegistry cors) {
-        cors.addMapping(config.getBasePath() + "/**")
+    private void configureCorsAndAllowedMethods(RepositoryRestConfiguration config, CorsRegistry corsRegistry) {
+        corsRegistry.addMapping(config.getBasePath() + "/**")
                 .allowedOrigins(this.allowedOrigins)
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH");
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH"); // TODO allow only needed methods
     }
 
-    private void exposeIds(RepositoryRestConfiguration config) {
+    private void exposeEntityIds(RepositoryRestConfiguration config) {
 
         var entities = entityManager.getMetamodel().getEntities();
 

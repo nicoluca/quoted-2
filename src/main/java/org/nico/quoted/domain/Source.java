@@ -1,5 +1,7 @@
 package org.nico.quoted.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,6 +18,7 @@ public class Source {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
+    //@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private long id;
 
     @Column(name = "name")
@@ -23,5 +26,6 @@ public class Source {
     private String name;
 
     @OneToMany(mappedBy = "source", cascade = CascadeType.MERGE)
+    @JsonIgnore
     private Set<Quote> quotes;
 }
