@@ -8,7 +8,6 @@ import org.springframework.data.rest.core.config.Projection;
 import java.sql.Timestamp;
 
 
-// TODO currently used to expose the source field of a quote - not needed but easier to read
 @Projection(name = "quote", types = { Quote.class })
 public
 interface QuoteProjection {

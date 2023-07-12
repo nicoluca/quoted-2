@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class QuoteService implements Update<Quote>{
+public class QuoteService implements Update<Quote>, Delete<Quote> {
 
     private final SourceRepository sourceRepository;
     private final QuoteRepository quoteRepository;
@@ -39,5 +39,12 @@ public class QuoteService implements Update<Quote>{
 
         sourceRepository.deleteEmptySources();
         return quoteRepository.save(quoteFromDb);
+    }
+
+    public Quote delete(Long id) {
+        Quote quote = quoteRepository.findById(id).orElseThrow();
+        quoteRepository.deleteById(id);
+        sourceRepository.deleteEmptySources();
+        return quote;
     }
 }

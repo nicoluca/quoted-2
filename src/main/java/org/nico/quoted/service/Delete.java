@@ -1,6 +1,6 @@
 package org.nico.quoted.service;
 
 @FunctionalInterface
-interface Update<T> {
-    T update(T t);
+interface Delete<T> {
+        T delete(Long id);
 }
