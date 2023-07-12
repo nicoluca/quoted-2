@@ -34,7 +34,7 @@ public class RestConfig implements RepositoryRestConfigurer {
     private void configureCorsAndAllowedMethods(RepositoryRestConfiguration config, CorsRegistry corsRegistry) {
         corsRegistry.addMapping(config.getBasePath() + "/**")
                 .allowedOrigins(this.allowedOrigins)
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH"); // TODO allow only needed methods
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH");
     }
 
     private void exposeEntityIds(RepositoryRestConfiguration config) {

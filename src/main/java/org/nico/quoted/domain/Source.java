@@ -18,7 +18,6 @@ public class Source {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    //@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private long id;
 
     @Column(name = "name")

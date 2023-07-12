@@ -1,6 +1,10 @@
 -- Auto-generated definition of the database schema for PostgreSQL
 
-create table if not exists sources
+drop table if exists quotes;
+drop table if exists sources;
+
+
+create table sources
 (
     id   bigserial
         primary key,
@@ -9,12 +13,13 @@ create table if not exists sources
             unique
 );
 
-create table if not exists quotes
+create table quotes
 (
     id        bigserial
         primary key,
     source_id bigint
         constraint fk_source_id
             references sources,
+    datetime_created timestamp with time zone default now(),
     text      text
 );
