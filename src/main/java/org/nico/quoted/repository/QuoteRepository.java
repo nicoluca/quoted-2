@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RepositoryRestResource(collectionResourceRel = "quotes", path = "quotes", excerptProjection = QuoteProjection.class)
 public interface QuoteRepository extends PagingAndSortingRepository<Quote, Long>, CrudRepository<Quote, Long> {
 
-    // Find by text containing or source name containing
     @Query("SELECT q FROM Quote q " +
+            "LEFT JOIN q.source s " +
             "WHERE UPPER(q.text) LIKE CONCAT('%', UPPER(?1), '%') " +
-            "OR UPPER(q.source.name) LIKE CONCAT('%', UPPER(?1), '%')")
+            "OR UPPER(s.name) LIKE CONCAT('%', UPPER(?1), '%')")
     Page<Quote> findByTextContainingIgnoreCaseOrSourceNameContainingIgnoreCase
         (@RequestParam("text") String text, Pageable pageable);
 
