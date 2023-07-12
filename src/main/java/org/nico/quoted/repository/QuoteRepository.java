@@ -4,6 +4,7 @@ import org.nico.quoted.domain.Quote;
 import org.nico.quoted.projections.QuoteProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
@@ -12,7 +13,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RepositoryRestResource(collectionResourceRel = "quotes", path = "quotes", excerptProjection = QuoteProjection.class)
 public interface QuoteRepository extends PagingAndSortingRepository<Quote, Long>, CrudRepository<Quote, Long> {
 
-    Page<Quote> findByTextContainingIgnoreCase(@RequestParam("text") String text, Pageable pageable);
+    // Find by text containing or source name containing
+    @Query("SELECT q FROM Quote q " +
+            "WHERE UPPER(q.text) LIKE CONCAT('%', UPPER(?1), '%') " +
+            "OR UPPER(q.source.name) LIKE CONCAT('%', UPPER(?1), '%')")
+    Page<Quote> findByTextContainingIgnoreCaseOrSourceNameContainingIgnoreCase
+        (@RequestParam("text") String text, Pageable pageable);
 
     Page<Quote> findBySourceId(@RequestParam("id") Long id, Pageable pageable);
 
