@@ -35,25 +35,31 @@ public class ExportController {
     }
 
     @GetMapping(path = "/download-quotes")
-    public ResponseEntity<StreamingResponseBody> download() throws IOException {
-            Resource resource = exportService.generateMarkdownZip();
+    public ResponseEntity<StreamingResponseBody> download() {
+        Resource resource;
+        try {
+            resource = exportService.generateMarkdownZip();
+        } catch (IOException e) {
+            logger.severe("Error generating zip file: " + e.getMessage());
+            return ResponseEntity.internalServerError().build();
+        }
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-            headers.setContentDispositionFormData("attachment", filename);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setContentDispositionFormData("attachment", filename);
 
-            return ResponseEntity.ok()
-                    .headers(headers)
-                    .body(outputStream -> {
-                        try {
-                            outputStream.write(resource.getInputStream().readAllBytes());
-                        } catch (IOException e) {
-                            logger.severe("Error writing to output stream: " + e.getMessage());
-                            throw new RuntimeException(e);
-                        } finally {
-                            exportService.cleanUp();
-                        }
-                    });
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(outputStream -> {
+                    try {
+                        outputStream.write(resource.getInputStream().readAllBytes());
+                    } catch (IOException e) {
+                        logger.severe("Error writing to output stream: " + e.getMessage());
+                        throw new RuntimeException(e);
+                    } finally {
+                        exportService.cleanUp();
+                    }
+                });
     }
 }
 
