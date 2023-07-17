@@ -1,11 +1,8 @@
 package org.nico.quoted.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import lombok.*;
 
 import java.util.Set;
 
@@ -13,6 +10,8 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @Table(name = "sources")
+@Builder // For testing
+@AllArgsConstructor // For testing
 public class Source {
 
     @Id

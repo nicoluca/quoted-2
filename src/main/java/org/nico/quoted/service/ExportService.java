@@ -26,10 +26,10 @@ public class ExportService {
     private final SourceRepository sourceRepository;
     private final Logger logger = Logger.getLogger(getClass().getName());
 
-    private final String TEMP_OUT_DIR = "temp-out";
+    static final String TEMP_OUT_DIR = "temp-out";
 
     @Value("${quoted.out-zip}")
-    private String TEMP_OUT_ZIP;
+    String TEMP_OUT_ZIP;
 
     @Autowired
     public ExportService(QuoteRepository quoteRepository, SourceRepository sourceRepository) {
@@ -37,7 +37,22 @@ public class ExportService {
         this.sourceRepository = sourceRepository;
     }
 
-    public void generateMarkdownFiles() {
+    public Resource generateMarkdownZip() throws IOException {
+        logger.info("Generating markdown zip...");
+        generateMarkdownFiles();
+        ZipUtil.pack(TEMP_OUT_DIR, TEMP_OUT_ZIP);
+        logger.info("Markdown zip generated.");
+        return new FileSystemResource(TEMP_OUT_ZIP);
+    }
+
+    public void cleanUp() {
+        logger.info("Deleting temp files...");
+        FileSystemUtils.deleteRecursively(Paths.get(TEMP_OUT_DIR).toFile());
+        FileSystemUtils.deleteRecursively(Paths.get(TEMP_OUT_ZIP).toFile());
+        logger.info("Temp files deleted.");
+    }
+
+    void generateMarkdownFiles() {
         logger.info("Generating markdown files");
         Iterable<Source> sources = sourceRepository.findAll();
         Iterable<Quote> quotes = quoteRepository.findAll();
@@ -93,20 +108,5 @@ public class ExportService {
             content.append("- ").append(quote.getText()).append("\n");
 
         return content.toString();
-    }
-
-    public Resource generateMarkdownZip() throws IOException {
-        logger.info("Generating markdown zip...");
-        generateMarkdownFiles();
-        ZipUtil.pack(TEMP_OUT_DIR, TEMP_OUT_ZIP);
-        logger.info("Markdown zip generated.");
-        return new FileSystemResource(TEMP_OUT_ZIP);
-    }
-
-    public void cleanUp() {
-        logger.info("Deleting temp files...");
-        FileSystemUtils.deleteRecursively(Paths.get(TEMP_OUT_DIR).toFile());
-        FileSystemUtils.deleteRecursively(Paths.get(TEMP_OUT_ZIP).toFile());
-        logger.info("Temp files deleted.");
     }
 }

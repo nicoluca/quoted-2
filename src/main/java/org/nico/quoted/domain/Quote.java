@@ -1,9 +1,7 @@
 package org.nico.quoted.domain;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
@@ -12,6 +10,8 @@ import java.sql.Timestamp;
 @Data
 @NoArgsConstructor
 @Table(name = "quotes")
+@Builder // For testing
+@AllArgsConstructor // For testing
 public class Quote {
 
     @Id

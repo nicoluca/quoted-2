@@ -1,6 +1,5 @@
 package org.nico.quoted.controller;
 
-import lombok.NonNull;
 import org.nico.quoted.service.ExportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.logging.Logger;
 
 @RestController

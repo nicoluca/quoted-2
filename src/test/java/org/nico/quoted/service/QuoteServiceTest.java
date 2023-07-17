@@ -2,8 +2,6 @@ package org.nico.quoted.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.nico.quoted.domain.Quote;
 import org.nico.quoted.domain.Source;
 import org.nico.quoted.repository.QuoteRepository;
@@ -11,7 +9,6 @@ import org.nico.quoted.repository.SourceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.util.Optional;
 
