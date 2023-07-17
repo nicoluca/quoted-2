@@ -36,4 +36,5 @@ build/
 src/main/resources/*.properties
 
 ### Export ###
-out/
+temp-out/
+quotes-export.zip
