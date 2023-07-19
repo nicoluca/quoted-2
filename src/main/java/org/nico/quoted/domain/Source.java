@@ -26,4 +26,9 @@ public class Source {
     @OneToMany(mappedBy = "source", cascade = CascadeType.MERGE)
     @JsonIgnore
     private Set<Quote> quotes;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    private User user;
 }

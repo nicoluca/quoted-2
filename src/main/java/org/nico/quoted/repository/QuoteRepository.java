@@ -10,8 +10,13 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.UUID;
+
 @RepositoryRestResource(collectionResourceRel = "quotes", path = "quotes", excerptProjection = QuoteProjection.class)
 public interface QuoteRepository extends PagingAndSortingRepository<Quote, Long>, CrudRepository<Quote, Long> {
+
+    Page<Quote> findAllByUserId(@RequestParam("userId") UUID userId, Pageable pageable);
+
 
     @Query("SELECT q FROM Quote q " +
             "LEFT JOIN q.source s " +

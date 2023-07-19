@@ -1,11 +1,11 @@
 package org.nico.quoted.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
-import java.time.format.DateTimeFormatter;
 
 @Entity
 @Data
@@ -32,5 +32,10 @@ public class Quote {
     @ManyToOne
     @JoinColumn(name = "source_id")
     private Source source;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    private User user;
 
 }

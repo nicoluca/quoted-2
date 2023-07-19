@@ -6,12 +6,14 @@ drop table if exists users;
 
 create table users
 (
-    id       bigserial
-        primary key,
+    id       uuid
+        primary key
+            default uuid_generate_v4(),
     email    varchar(255)
         constraint unique_email
             unique
 );
+
 
 create table sources
 (
@@ -20,7 +22,7 @@ create table sources
     name varchar(255)
         constraint unique_source_name
             unique,
-    user_id bigint
+    user_id uuid
         constraint fk_user_id
             references users
 );
@@ -34,7 +36,7 @@ create table quotes
             references sources,
     datetime_created timestamp with time zone default now(),
     text      text,
-    user_id   bigint
+    user_id   uuid
         constraint fk_user_id
             references users
 );
