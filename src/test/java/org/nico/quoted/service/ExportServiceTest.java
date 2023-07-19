@@ -67,7 +67,6 @@ public class ExportServiceTest {
 
         // Verification
         verify(quoteRepository, times(1)).findAll();
-        verify(sourceRepository, times(1)).findAll();
 
         // Asserts
         assertTrue(zipResource.exists());

@@ -16,12 +16,18 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 @Service
 public class ExportService {
+
+    @Value("${quoted.date-time-format}")
+    private String DATE_TIME_FORMAT;
     private final QuoteRepository quoteRepository;
     private final SourceRepository sourceRepository;
     private final Logger logger = Logger.getLogger(getClass().getName());
@@ -54,37 +60,59 @@ public class ExportService {
 
     void generateMarkdownFiles() {
         logger.info("Generating markdown files");
-        Iterable<Source> sources = sourceRepository.findAll();
         Iterable<Quote> quotes = quoteRepository.findAll();
-        List<Quote> quoteList = new ArrayList<>();
-        quotes.forEach(quoteList::add);
 
-        logger.info("Found " + quoteList.size() + " quotes from " + sources.spliterator().getExactSizeIfKnown() + " sources");
+        logger.info("Found " + quotes.spliterator().getExactSizeIfKnown() + " quotes...");
+        logger.info("Preparing quotes...");
+        Map<Source, List<Quote>> sourceQuoteMap = generateSourceQuoteMap(quotes);
 
-        for (Source source : sources) {
-            logger.info("Generating markdown file for source " + source.getName());
+        logger.info("Quotes prepared. Found " + sourceQuoteMap.size() + " sources.");
+        logger.info("Generating markdown files...");
+        sourceQuoteMap.keySet().forEach(source ->
+                generateMarkdownFile(source, sourceQuoteMap.get(source)));
 
-            List<Quote> sourceQuotes = quoteList.stream()
-                    .filter(quote -> quote.getSource().equals(source))
-                    .toList();
+        logger.info("Markdown files generated");
+    }
 
-            String fileName = source.getName() + ".md";
-            String content = generateMarkdownContent(source, sourceQuotes);
+    private Map<Source, List<Quote>> generateSourceQuoteMap(Iterable<Quote> quoteList) {
+        Source unknownSource = new Source();
+        unknownSource.setName("(No source)");
 
-            try {
-                createDirectoryIfNotExists(TEMP_OUT_DIR);
+        Map<Source, List<Quote>> sourceQuoteMap = new HashMap<>();
 
-                FileWriter fileWriter = new FileWriter(TEMP_OUT_DIR + "/" + fileName);
-                fileWriter.write(content);
-                fileWriter.close();
-            } catch (IOException e) {
-                // Handle the exception appropriately
-                logger.severe("Error writing to file " + fileName);
-                throw new RuntimeException(e);
+        for (Quote quote : quoteList) {
+            if (quote.getSource() == null)
+                quote.setSource(unknownSource);
+
+            if (sourceQuoteMap.containsKey(quote.getSource()))
+                sourceQuoteMap.get(quote.getSource()).add(quote);
+            else {
+                List<Quote> list = new ArrayList<>();
+                list.add(quote);
+                sourceQuoteMap.put(quote.getSource(), list);
             }
         }
 
-        logger.info("Markdown files generated");
+        return sourceQuoteMap;
+    }
+
+    private void generateMarkdownFile(Source source, List<Quote> quotes) {
+        logger.info("Generating markdown file for source " + source.getName());
+
+        String fileName = source.getName() + ".md";
+        String content = generateMarkdownContent(source, quotes);
+
+        try {
+            createDirectoryIfNotExists(TEMP_OUT_DIR);
+
+            FileWriter fileWriter = new FileWriter(TEMP_OUT_DIR + "/" + fileName);
+            fileWriter.write(content);
+            fileWriter.close();
+        } catch (IOException e) {
+            // Handle the exception appropriately
+            logger.severe("Error writing to file " + fileName);
+            throw new RuntimeException(e);
+        }
     }
 
     private void createDirectoryIfNotExists(String out) {
@@ -94,8 +122,8 @@ public class ExportService {
             try {
                 path.toFile().mkdir();
             } catch (SecurityException e) {
-                // Handle the exception appropriately
                 logger.severe("Error creating directory " + out);
+                throw new RuntimeException(e);
             }
         }
     }
@@ -104,8 +132,11 @@ public class ExportService {
         StringBuilder content = new StringBuilder();
         content.append("# ").append(source.getName()).append("\n\n");
 
-        for (Quote quote : quotes)
-            content.append("- ").append(quote.getText()).append("\n");
+        quotes.forEach(quote -> {
+            content.append("- ").append(quote.getText()).append(" ");
+            content.append("*(").append(quote.getDatetimeCreated().toLocalDateTime().format(DateTimeFormatter.ofPattern(DATE_TIME_FORMAT))).append(")*");
+            content.append("\n");
+        });
 
         return content.toString();
     }
