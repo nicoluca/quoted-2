@@ -1,6 +1,5 @@
 package org.nico.quoted.repository;
 
-import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Order;
@@ -9,7 +8,6 @@ import org.nico.quoted.domain.Quote;
 import org.nico.quoted.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,8 +27,12 @@ class QuoteRepositoryTest {
     private User user;
     private Quote quote;
 
+    private Pageable pageable;
+
     @BeforeEach
     void setUp() {
+        pageable = PageRequest.of(0, 10);
+
         user = new User();
         user.setEmail("test-email");
         user = userRepository.save(user);
@@ -56,7 +58,6 @@ class QuoteRepositoryTest {
 
     @Test
     void findAllByUserId() {
-        Pageable pageable = PageRequest.of(0, 10);
         Page<Quote> quotes = quoteRepository.findAllByUserId(user.getId(), pageable);
 
         assertNotNull(quotes);
@@ -65,10 +66,9 @@ class QuoteRepositoryTest {
     }
 
     @Test
-    void testFindByTextContainingIgnoreCaseOrSourceNameContainingIgnoreCase() {
+    void testFindByText() {
         String searchText = "test";
-        Pageable pageable = PageRequest.of(0, 10);
-        Page<Quote> quotes = quoteRepository.findByTextContainingIgnoreCaseOrSourceNameContainingIgnoreCase(searchText, pageable);
+        Page<Quote> quotes = quoteRepository.findByText(searchText, user.getId(), pageable);
 
         assertNotNull(quotes);
         assertFalse(quotes.isEmpty());
@@ -81,8 +81,7 @@ class QuoteRepositoryTest {
     @Test
     void testFindBySourceId() {
         Long sourceId = 1L; // Replace with the actual source ID
-        Pageable pageable = PageRequest.of(0, 10);
-        Page<Quote> quotes = quoteRepository.findBySourceId(sourceId, pageable);
+        Page<Quote> quotes = quoteRepository.findBySourceIdAndUserId(sourceId, user.getId(), pageable);
 
         assertNotNull(quotes);
         assertTrue(quotes.isEmpty());
@@ -90,8 +89,7 @@ class QuoteRepositoryTest {
 
     @Test
     void testFindBySourceIsNull() {
-        Pageable pageable = PageRequest.of(0, 10);
-        Page<Quote> quotes = quoteRepository.findBySourceIsNull(pageable);
+        Page<Quote> quotes = quoteRepository.findBySourceIsNullAndUserId(user.getId(), pageable);
 
         assertNotNull(quotes);
         assertFalse(quotes.isEmpty());

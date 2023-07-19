@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.nico.quoted.domain.Quote;
 import org.nico.quoted.domain.Source;
+import org.nico.quoted.domain.User;
 import org.nico.quoted.repository.QuoteRepository;
 import org.nico.quoted.repository.SourceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -30,16 +32,21 @@ public class QuoteServiceTest {
     private QuoteRepository quoteRepository;
 
     private Quote testQuote;
+    private UUID testUserId = UUID.randomUUID();
 
     @BeforeEach
     public void setup() {
+        User testUser = new User();
+        testUser.setId(testUserId);
+
         testQuote = new Quote();
         testQuote.setId(1L);
+        testQuote.setUser(testUser);
         testQuote.setText("Original text");
     }
 
     @Test
-    public void testUpdate() {
+    public void testUpdate() throws IllegalAccessException {
         // Setup
         Source testSource = new Source();
         testSource.setId(1L);
@@ -50,23 +57,25 @@ public class QuoteServiceTest {
         mockQuoteFromDb.setId(1L);
         mockQuoteFromDb.setText("Old text");
         mockQuoteFromDb.setSource(testSource);
+        mockQuoteFromDb.setUser(testQuote.getUser());
 
         Source mockSourceFromDb = new Source();
         mockSourceFromDb.setId(1L);
         mockSourceFromDb.setName("Test Source");
+        mockSourceFromDb.setUser(testQuote.getUser());
 
         // Mocks
         when(quoteRepository.findById(1L)).thenReturn(Optional.of(mockQuoteFromDb));
-        when(sourceRepository.findByName("Test Source")).thenReturn(mockSourceFromDb);
+        when(sourceRepository.findByNameAndUserId("Test Source", testUserId)).thenReturn(mockSourceFromDb);
         when(sourceRepository.save(mockSourceFromDb)).thenReturn(mockSourceFromDb);
         when(quoteRepository.save(any(Quote.class))).thenReturn(mockQuoteFromDb);
 
         // Execution
-        Quote updatedQuote = quoteService.update(testQuote);
+        Quote updatedQuote = quoteService.update(testQuote, testUserId);
 
         // Verification
         verify(quoteRepository).findById(1L);
-        verify(sourceRepository).findByName("Test Source");
+        verify(sourceRepository).findByNameAndUserId("Test Source", testUserId);
         verify(sourceRepository).save(mockSourceFromDb);
         verify(quoteRepository).save(mockQuoteFromDb);
         verify(sourceRepository).deleteEmptySources();
@@ -79,17 +88,18 @@ public class QuoteServiceTest {
     }
 
     @Test
-    public void testDelete() {
+    public void testDelete() throws IllegalAccessException {
         // Setup
         Quote mockQuoteFromDb = new Quote();
         mockQuoteFromDb.setId(1L);
         mockQuoteFromDb.setText("Test quote");
+        mockQuoteFromDb.setUser(testQuote.getUser());
 
         // Mocks
         when(quoteRepository.findById(1L)).thenReturn(Optional.of(mockQuoteFromDb));
 
         // Execution
-        Quote deletedQuote = quoteService.delete(1L);
+        Quote deletedQuote = quoteService.delete(1L, testUserId);
 
         // Verification
         verify(quoteRepository).findById(1L);

@@ -3,7 +3,6 @@ package org.nico.quoted.service;
 import org.nico.quoted.domain.Quote;
 import org.nico.quoted.domain.Source;
 import org.nico.quoted.repository.QuoteRepository;
-import org.nico.quoted.repository.SourceRepository;
 import org.nico.quoted.util.ZipUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,10 +16,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 @Service
@@ -29,7 +25,6 @@ public class ExportService {
     @Value("${quoted.date-time-format}")
     private String DATE_TIME_FORMAT;
     private final QuoteRepository quoteRepository;
-    private final SourceRepository sourceRepository;
     private final Logger logger = Logger.getLogger(getClass().getName());
 
     static final String TEMP_OUT_DIR = "temp-out";
@@ -38,14 +33,13 @@ public class ExportService {
     String TEMP_OUT_ZIP;
 
     @Autowired
-    public ExportService(QuoteRepository quoteRepository, SourceRepository sourceRepository) {
+    public ExportService(QuoteRepository quoteRepository) {
         this.quoteRepository = quoteRepository;
-        this.sourceRepository = sourceRepository;
     }
 
-    public Resource generateMarkdownZip() throws IOException {
+    public Resource generateMarkdownZip(UUID userId) throws IOException {
         logger.info("Generating markdown zip...");
-        generateMarkdownFiles();
+        generateMarkdownFiles(userId);
         ZipUtil.pack(TEMP_OUT_DIR, TEMP_OUT_ZIP);
         logger.info("Markdown zip generated.");
         return new FileSystemResource(TEMP_OUT_ZIP);
@@ -58,9 +52,9 @@ public class ExportService {
         logger.info("Temp files deleted.");
     }
 
-    void generateMarkdownFiles() {
+    void generateMarkdownFiles(UUID userId) {
         logger.info("Generating markdown files");
-        Iterable<Quote> quotes = quoteRepository.findAll();
+        Iterable<Quote> quotes = quoteRepository.findAllByUserId(userId);
 
         logger.info("Found " + quotes.spliterator().getExactSizeIfKnown() + " quotes...");
         logger.info("Preparing quotes...");

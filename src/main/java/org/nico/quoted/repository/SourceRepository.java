@@ -9,11 +9,13 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 
 @RepositoryRestResource(collectionResourceRel = "sources", path = "sources")
 public interface SourceRepository extends PagingAndSortingRepository<Source, Long>, CrudRepository<Source, Long> {
     @RestResource(exported = false)
-    Source findByName(String name);
+    Source findByNameAndUserId(String name, UUID userId);
 
     @Transactional
     @Modifying

@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 public class QuoteService implements Update<Quote>, Delete<Quote> {
 
@@ -22,8 +24,10 @@ public class QuoteService implements Update<Quote>, Delete<Quote> {
 
     @Override
     @Transactional
-    public Quote update(Quote quoteToUpdate) {
+    public Quote update(Quote quoteToUpdate, UUID userId) throws IllegalAccessException {
         Quote quoteFromDb = quoteRepository.findById(quoteToUpdate.getId()).orElseThrow();
+
+        verifyQuoteOwnership(userId, quoteFromDb);
 
         if (!quoteToUpdate.getText().equals(quoteFromDb.getText()))
             quoteFromDb.setText(quoteToUpdate.getText());
@@ -31,7 +35,7 @@ public class QuoteService implements Update<Quote>, Delete<Quote> {
         Source sourceFromQuoteToUpdate = quoteToUpdate.getSource();
 
         if (sourceFromQuoteToUpdate != null) {
-            Source sourceFromDb = sourceRepository.findByName(sourceFromQuoteToUpdate.getName());
+            Source sourceFromDb = sourceRepository.findByNameAndUserId(sourceFromQuoteToUpdate.getName(), userId);
             sourceFromQuoteToUpdate = sourceFromDb != null ? sourceFromDb : sourceFromQuoteToUpdate;
             sourceFromQuoteToUpdate = sourceRepository.save(sourceFromQuoteToUpdate);
             quoteFromDb.setSource(sourceFromQuoteToUpdate);
@@ -41,10 +45,19 @@ public class QuoteService implements Update<Quote>, Delete<Quote> {
         return quoteRepository.save(quoteFromDb);
     }
 
-    public Quote delete(Long id) {
+    private static void verifyQuoteOwnership(UUID userId, Quote quoteFromDb) throws IllegalAccessException {
+        if (!quoteFromDb.getUser().getId().equals(userId))
+            throw new IllegalAccessException("User ID does not match");
+    }
+
+    @Override
+    public Quote delete(Long id, UUID userId) throws IllegalAccessException {
         Quote quote = quoteRepository.findById(id).orElseThrow();
+        verifyQuoteOwnership(userId, quote);
+
         quoteRepository.deleteById(id);
         sourceRepository.deleteEmptySources();
         return quote;
     }
+    
 }

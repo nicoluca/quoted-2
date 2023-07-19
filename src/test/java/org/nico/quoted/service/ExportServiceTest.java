@@ -18,6 +18,7 @@ import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -59,14 +60,13 @@ public class ExportServiceTest {
                             .build());
 
         // Mocks
-        when(quoteRepository.findAll()).thenReturn(quotes);
-        when(sourceRepository.findAll()).thenReturn(sources);
+        when(quoteRepository.findAllByUserId(any(UUID.class))).thenReturn(quotes);
 
         //  Execution
-        Resource zipResource = exportService.generateMarkdownZip();
+        Resource zipResource = exportService.generateMarkdownZip(UUID.randomUUID());
 
         // Verification
-        verify(quoteRepository, times(1)).findAll();
+        verify(quoteRepository, times(1)).findAllByUserId(any(UUID.class));
 
         // Asserts
         assertTrue(zipResource.exists());

@@ -19,6 +19,7 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Objects;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -46,10 +47,10 @@ class ExportControllerTest {
         Resource resource = new FileSystemResource(
                 Objects.requireNonNull(
                         Thread.currentThread().getContextClassLoader().getResource("quotes.zip")).getFile());
-        when(exportService.generateMarkdownZip()).thenReturn(resource);
+        when(exportService.generateMarkdownZip(any(UUID.class))).thenReturn(resource);
         doNothing().when(exportService).cleanUp();
 
-        ResponseEntity<StreamingResponseBody> response = exportController.download();
+        ResponseEntity<StreamingResponseBody> response = exportController.download(UUID.randomUUID());
 
         HttpHeaders headers = response.getHeaders();
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -66,9 +67,9 @@ class ExportControllerTest {
 
     @Test
     void testDownload_FileDownloadError() throws IOException {
-        when(exportService.generateMarkdownZip()).thenThrow(IOException.class);
+        when(exportService.generateMarkdownZip(any(UUID.class))).thenThrow(IOException.class);
 
-        ResponseEntity<StreamingResponseBody> response = exportController.download();
+        ResponseEntity<StreamingResponseBody> response = exportController.download(UUID.randomUUID());
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
 
