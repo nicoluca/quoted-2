@@ -2,7 +2,16 @@
 
 drop table if exists quotes;
 drop table if exists sources;
+drop table if exists users;
 
+create table users
+(
+    id       bigserial
+        primary key,
+    email    varchar(255)
+        constraint unique_email
+            unique
+);
 
 create table sources
 (
@@ -10,7 +19,10 @@ create table sources
         primary key,
     name varchar(255)
         constraint unique_source_name
-            unique
+            unique,
+    user_id bigint
+        constraint fk_user_id
+            references users
 );
 
 create table quotes
@@ -21,5 +33,8 @@ create table quotes
         constraint fk_source_id
             references sources,
     datetime_created timestamp with time zone default now(),
-    text      text
+    text      text,
+    user_id   bigint
+        constraint fk_user_id
+            references users
 );
