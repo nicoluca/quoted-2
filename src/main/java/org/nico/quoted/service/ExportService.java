@@ -2,7 +2,6 @@ package org.nico.quoted.service;
 
 import org.nico.quoted.domain.Quote;
 import org.nico.quoted.domain.Source;
-import org.nico.quoted.repository.QuoteRepository;
 import org.nico.quoted.util.ZipUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,7 +23,7 @@ public class ExportService {
 
     @Value("${quoted.date-time-format}")
     private String DATE_TIME_FORMAT;
-    private final QuoteRepository quoteRepository;
+    private final QuoteService quoteService;
     private final Logger logger = Logger.getLogger(getClass().getName());
 
     static final String TEMP_OUT_DIR = "temp-out";
@@ -33,8 +32,8 @@ public class ExportService {
     String TEMP_OUT_ZIP;
 
     @Autowired
-    public ExportService(QuoteRepository quoteRepository) {
-        this.quoteRepository = quoteRepository;
+    public ExportService(QuoteService quoteService) {
+        this.quoteService = quoteService;
     }
 
     public Resource generateMarkdownZip(UUID userId) throws IOException {
@@ -54,7 +53,7 @@ public class ExportService {
 
     void generateMarkdownFiles(UUID userId) {
         logger.info("Generating markdown files");
-        Iterable<Quote> quotes = quoteRepository.findAllByUserId(userId);
+        Iterable<Quote> quotes = quoteService.findAllByUserId(userId);
 
         logger.info("Found " + quotes.spliterator().getExactSizeIfKnown() + " quotes...");
         logger.info("Preparing quotes...");
@@ -97,7 +96,7 @@ public class ExportService {
         String content = generateMarkdownContent(source, quotes);
 
         try {
-            createDirectoryIfNotExists(TEMP_OUT_DIR);
+            createDirectoryIfNotExists();
 
             FileWriter fileWriter = new FileWriter(TEMP_OUT_DIR + "/" + fileName);
             fileWriter.write(content);
@@ -109,14 +108,14 @@ public class ExportService {
         }
     }
 
-    private void createDirectoryIfNotExists(String out) {
-        Path path = Paths.get(out);
+    private void createDirectoryIfNotExists() {
+        Path path = Paths.get(ExportService.TEMP_OUT_DIR);
 
         if (!path.toFile().exists()) {
             try {
                 path.toFile().mkdir();
             } catch (SecurityException e) {
-                logger.severe("Error creating directory " + out);
+                logger.severe("Error creating directory " + ExportService.TEMP_OUT_DIR);
                 throw new RuntimeException(e);
             }
         }
