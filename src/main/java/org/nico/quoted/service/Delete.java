@@ -1,8 +1,8 @@
 package org.nico.quoted.service;
 
-import java.util.UUID;
+import org.nico.quoted.domain.User;
 
 @FunctionalInterface
 interface Delete<T> {
-        T delete(Long id, UUID userId) throws IllegalAccessException;
+        T delete(Long id, User user) throws IllegalAccessException;
 }

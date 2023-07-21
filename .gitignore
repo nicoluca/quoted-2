@@ -33,7 +33,7 @@ build/
 .vscode/
 
 ### config ###
-src/main/resources/*.properties
+*.properties
 
 ### Export ###
 temp-out/

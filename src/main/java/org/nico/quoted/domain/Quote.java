@@ -38,4 +38,15 @@ public class Quote {
     @JsonIgnore
     private User user;
 
+    @Override
+    public String toString() {
+        return "Quote{" +
+                "id=" + id +
+                ", text='" + text + '\'' +
+                ", datetimeCreated=" + datetimeCreated +
+                ", source=" + source +
+                ", user=" + user +
+                '}';
+    }
+
 }

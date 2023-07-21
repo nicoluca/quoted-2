@@ -2,8 +2,9 @@ package org.nico.quoted.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
+import org.nico.quoted.domain.User;
 import org.nico.quoted.service.ExportService;
+import org.nico.quoted.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,7 +20,6 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Objects;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -33,13 +33,15 @@ class ExportControllerTest {
     @MockBean
     private ExportService exportService;
 
+    @MockBean
+    private UserService userService;
+
     @Value("${quoted.out-zip}")
     private String filename;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-        exportController = new ExportController(exportService);
+        // MockitoAnnotations.openMocks(this);
     }
 
     @Test
@@ -47,10 +49,13 @@ class ExportControllerTest {
         Resource resource = new FileSystemResource(
                 Objects.requireNonNull(
                         Thread.currentThread().getContextClassLoader().getResource("quotes.zip")).getFile());
-        when(exportService.generateMarkdownZip(any(UUID.class))).thenReturn(resource);
-        doNothing().when(exportService).cleanUp();
+        User user = new User();
 
-        ResponseEntity<StreamingResponseBody> response = exportController.download(UUID.randomUUID());
+        when(exportService.generateMarkdownZip(any(User.class))).thenReturn(resource);
+        doNothing().when(exportService).cleanUp();
+        when(userService.getAuthenticatedUser()).thenReturn(user);
+
+        ResponseEntity<StreamingResponseBody> response = exportController.download();
 
         HttpHeaders headers = response.getHeaders();
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -63,18 +68,22 @@ class ExportControllerTest {
         verify(outputStream).write(any(byte[].class));
 
         verify(exportService).cleanUp();
+        verify(userService).getAuthenticatedUser();
     }
 
     @Test
     void testDownload_FileDownloadError() throws IOException {
-        when(exportService.generateMarkdownZip(any(UUID.class))).thenThrow(IOException.class);
+        when(exportService.generateMarkdownZip(any(User.class))).thenThrow(new IOException());
+        doNothing().when(exportService).cleanUp();
+        when(userService.getAuthenticatedUser()).thenReturn(new User());
 
-        ResponseEntity<StreamingResponseBody> response = exportController.download(UUID.randomUUID());
+        ResponseEntity<StreamingResponseBody> response = exportController.download();
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
 
         // Verify cleanup method not called
         verify(exportService, never()).cleanUp();
+        verify(userService).getAuthenticatedUser();
     }
 
 }

@@ -9,9 +9,10 @@ import org.nico.quoted.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
-import java.util.UUID;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
 class SourceRepositoryTest {
@@ -30,7 +31,7 @@ class SourceRepositoryTest {
     @BeforeEach
     void setUp() {
         user = new User();
-        user.setId(UUID.randomUUID());
+        user.setId(1L);
         user = userRepository.save(user);
 
         source = new Source();
@@ -53,24 +54,24 @@ class SourceRepositoryTest {
 
     @Test
     void testFindByName() {
-        Source foundSource = sourceRepository.findByNameAndUserId(SOURCE_NAME, user.getId());
+        Optional<Source> foundSource = sourceRepository.findByName(SOURCE_NAME);
 
         // Assert that the retrieved source is not null and has the correct name
-        assertNotNull(foundSource);
-        assertEquals("Test Source", foundSource.getName());
+        assertTrue(foundSource.isPresent());
+        assertEquals("Test Source", foundSource.get().getName());
     }
 
     @Test
     void testFindByNameNotFound() {
-        Source foundSource = sourceRepository.findByNameAndUserId("Not Found", user.getId());
-        assertNull(foundSource);
+        Optional<Source> foundSource = sourceRepository.findByName("Not Found");
+        assertTrue(foundSource.isEmpty());
     }
 
     @Test
     void testDeleteEmptySources() {
         sourceRepository.deleteEmptySources();
 
-        assertNull(sourceRepository.findByNameAndUserId("Empty Source", user.getId()));
+        assertTrue(sourceRepository.findByName(SOURCE_NAME).isEmpty());
         assertEquals(0, sourceRepository.count());
     }
 }

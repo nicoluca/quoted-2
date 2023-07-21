@@ -1,17 +1,21 @@
 package org.nico.quoted.controller;
 
+import org.nico.quoted.domain.User;
 import org.nico.quoted.service.ExportService;
+import org.nico.quoted.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.io.IOException;
-import java.util.UUID;
 import java.util.logging.Logger;
 
 @RestController
@@ -19,6 +23,7 @@ import java.util.logging.Logger;
 @CrossOrigin(origins = "http://localhost:4200") // TODO Should be configurable, not hardcoded
 public class ExportController {
     private final ExportService exportService;
+    private final UserService userService;
 
     @Value("${quoted.out-zip}")
     private String filename;
@@ -26,15 +31,18 @@ public class ExportController {
     private final Logger logger = Logger.getLogger(getClass().getName());
 
     @Autowired
-    public ExportController(ExportService exportService) {
+    public ExportController(ExportService exportService, UserService userService) {
         this.exportService = exportService;
+        this.userService = userService;
     }
 
     @GetMapping(path = "/download-quotes")
-    public ResponseEntity<StreamingResponseBody> download(@RequestParam("userId") UUID userId) {
+    public ResponseEntity<StreamingResponseBody> download() {
         Resource resource;
+        User user = userService.getAuthenticatedUser();
+
         try {
-            resource = exportService.generateMarkdownZip(userId);
+            resource = exportService.generateMarkdownZip(user);
         } catch (IOException e) {
             logger.severe("Error generating zip file: " + e.getMessage());
             return ResponseEntity.internalServerError().build();

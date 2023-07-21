@@ -34,10 +34,12 @@ public class QuoteServiceTest {
     private Quote testQuote;
     private UUID testUserId = UUID.randomUUID();
 
+    private User testUser;
+
     @BeforeEach
     public void setup() {
-        User testUser = new User();
-        testUser.setId(testUserId);
+        testUser = new User();
+        testUser.setId(1L);
 
         testQuote = new Quote();
         testQuote.setId(1L);
@@ -66,16 +68,16 @@ public class QuoteServiceTest {
 
         // Mocks
         when(quoteRepository.findById(1L)).thenReturn(Optional.of(mockQuoteFromDb));
-        when(sourceRepository.findByNameAndUserId("Test Source", testUserId)).thenReturn(mockSourceFromDb);
+        when(sourceRepository.findByName("Test Source")).thenReturn(Optional.of(mockSourceFromDb));
         when(sourceRepository.save(mockSourceFromDb)).thenReturn(mockSourceFromDb);
         when(quoteRepository.save(any(Quote.class))).thenReturn(mockQuoteFromDb);
 
         // Execution
-        Quote updatedQuote = quoteService.update(testQuote, testUserId);
+        Quote updatedQuote = quoteService.update(testQuote, testUser);
 
         // Verification
         verify(quoteRepository).findById(1L);
-        verify(sourceRepository).findByNameAndUserId("Test Source", testUserId);
+        verify(sourceRepository).findByName("Test Source");
         verify(sourceRepository).save(mockSourceFromDb);
         verify(quoteRepository).save(mockQuoteFromDb);
         verify(sourceRepository).deleteEmptySources();
@@ -99,7 +101,7 @@ public class QuoteServiceTest {
         when(quoteRepository.findById(1L)).thenReturn(Optional.of(mockQuoteFromDb));
 
         // Execution
-        Quote deletedQuote = quoteService.delete(1L, testUserId);
+        Quote deletedQuote = quoteService.delete(1L, testUser);
 
         // Verification
         verify(quoteRepository).findById(1L);

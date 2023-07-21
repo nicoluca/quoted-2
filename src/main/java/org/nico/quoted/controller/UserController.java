@@ -1,11 +1,13 @@
 package org.nico.quoted.controller;
 
-import org.nico.quoted.dto.UuidDto;
+import org.nico.quoted.domain.User;
 import org.nico.quoted.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/users")
@@ -19,9 +21,10 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/uuid") // TODO Check if users can access other users' quotes
-    public UuidDto getUserUUID(@RequestParam("email") String email) {
-        return new UuidDto(userService.getUserId(email).toString());
+    @PostMapping
+    ResponseEntity<User> save() {
+       // TODO
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
 

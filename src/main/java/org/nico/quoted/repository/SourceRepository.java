@@ -1,25 +1,19 @@
 package org.nico.quoted.repository;
 
 import org.nico.quoted.domain.Source;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
-import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
+import java.util.Optional;
 
-
-@RepositoryRestResource(collectionResourceRel = "sources", path = "sources", exported = false)
 public interface SourceRepository extends PagingAndSortingRepository<Source, Long>, CrudRepository<Source, Long> {
 
-    @RestResource()
-    Source findByIdAndUserId(Long id, UUID userId);
-
-    @RestResource(exported = false)
-    Source findByNameAndUserId(String name, UUID userId);
+    Page<Source> findAllByUserId(long userId, Pageable pageable);
 
     @Transactional
     @Modifying
@@ -33,4 +27,6 @@ public interface SourceRepository extends PagingAndSortingRepository<Source, Lon
             """
             , nativeQuery = true)
     void deleteEmptySources();
+
+    Optional<Source> findByName(String name); // TODO Should be by name and user, should be optional
 }

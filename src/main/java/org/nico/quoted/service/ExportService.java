@@ -2,6 +2,7 @@ package org.nico.quoted.service;
 
 import org.nico.quoted.domain.Quote;
 import org.nico.quoted.domain.Source;
+import org.nico.quoted.domain.User;
 import org.nico.quoted.util.ZipUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,7 +16,10 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 @Service
@@ -36,9 +40,9 @@ public class ExportService {
         this.quoteService = quoteService;
     }
 
-    public Resource generateMarkdownZip(UUID userId) throws IOException {
+    public Resource generateMarkdownZip(User user) throws IOException {
         logger.info("Generating markdown zip...");
-        generateMarkdownFiles(userId);
+        generateMarkdownFiles(user);
         ZipUtil.pack(TEMP_OUT_DIR, TEMP_OUT_ZIP);
         logger.info("Markdown zip generated.");
         return new FileSystemResource(TEMP_OUT_ZIP);
@@ -51,9 +55,9 @@ public class ExportService {
         logger.info("Temp files deleted.");
     }
 
-    void generateMarkdownFiles(UUID userId) {
+    void generateMarkdownFiles(User user) {
         logger.info("Generating markdown files");
-        Iterable<Quote> quotes = quoteService.findAllByUserId(userId);
+        List<Quote> quotes = quoteService.findAllByUser(user);
 
         logger.info("Found " + quotes.spliterator().getExactSizeIfKnown() + " quotes...");
         logger.info("Preparing quotes...");
@@ -67,6 +71,7 @@ public class ExportService {
         logger.info("Markdown files generated");
     }
 
+    // TODO Streams
     private Map<Source, List<Quote>> generateSourceQuoteMap(Iterable<Quote> quoteList) {
         Source unknownSource = new Source();
         unknownSource.setName("(No source)");

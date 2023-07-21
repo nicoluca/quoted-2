@@ -31,4 +31,13 @@ public class Source {
     @JoinColumn(name = "user_id")
     @JsonIgnore
     private User user;
+
+    @Override
+    public String toString() {
+        return "Source{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", user=" + user +
+                '}';
+    }
 }

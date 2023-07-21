@@ -4,6 +4,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.nico.quoted.domain.Quote;
 import org.nico.quoted.domain.Source;
+import org.nico.quoted.domain.User;
 import org.nico.quoted.repository.SourceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,7 +18,6 @@ import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -59,13 +59,13 @@ public class ExportServiceTest {
                             .build());
 
         // Mocks
-        when(quoteService.findAllByUserId(any(UUID.class))).thenReturn(quotes);
+        when(quoteService.findAllByUser(any(User.class))).thenReturn(quotes);
 
         //  Execution
-        Resource zipResource = exportService.generateMarkdownZip(UUID.randomUUID());
+        Resource zipResource = exportService.generateMarkdownZip(new User());
 
         // Verification
-        verify(quoteService, times(1)).findAllByUserId(any(UUID.class));
+        verify(quoteService, times(1)).findAllByUser(any(User.class));
 
         // Asserts
         assertTrue(zipResource.exists());

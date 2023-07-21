@@ -1,7 +1,7 @@
 -- Truncate all tables and restart the IDENTITY sequence
 TRUNCATE TABLE quotes RESTART IDENTITY CASCADE;
 TRUNCATE TABLE sources RESTART IDENTITY CASCADE;
-TRUNCATE TABLE users CASCADE;
+TRUNCATE TABLE users RESTART IDENTITY CASCADE;
 
 -- Populate users table with 2 users
 INSERT INTO users (email) VALUES ('peter@lustig.de');

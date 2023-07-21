@@ -2,6 +2,7 @@ package org.nico.quoted.service;
 
 import org.nico.quoted.domain.Quote;
 import org.nico.quoted.domain.Source;
+import org.nico.quoted.domain.User;
 import org.nico.quoted.repository.QuoteRepository;
 import org.nico.quoted.repository.SourceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +14,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 @Service
-public class QuoteService implements Update<Quote>, Delete<Quote> {
+public class QuoteService implements Delete<Quote> {
 
     private final SourceRepository sourceRepository;
     private final QuoteRepository quoteRepository;
@@ -30,12 +31,28 @@ public class QuoteService implements Update<Quote>, Delete<Quote> {
         this.quoteRepository = quoteRepository;
     }
 
-    @Override
+    List<Quote> findAllByUser(User user) {
+        Pageable pageable = PageRequest.of(0, 1000);
+        List<Quote> quotes = new ArrayList<>();
+
+        while (true) {
+            Page<Quote> quotePage = quoteRepository.findAllByUserId(user.getId(), pageable);
+            List<Quote> quotesFromPage = quotePage.getContent();
+
+            if (quotesFromPage.isEmpty())
+                break;
+
+            quotes.addAll(quotesFromPage);
+            pageable = quotePage.nextPageable();
+        }
+        return quotes;
+    }
+
     @Transactional
-    public Quote update(Quote quoteToUpdate, UUID userId) throws IllegalAccessException {
+    public Quote update(Quote quoteToUpdate, User user) throws IllegalAccessException {
         Quote quoteFromDb = quoteRepository.findById(quoteToUpdate.getId()).orElseThrow();
 
-        verifyQuoteOwnership(userId, quoteFromDb);
+        verifyQuoteOwnership(user, quoteFromDb);
 
         if (!quoteToUpdate.getText().equals(quoteFromDb.getText()))
             quoteFromDb.setText(quoteToUpdate.getText());
@@ -43,8 +60,8 @@ public class QuoteService implements Update<Quote>, Delete<Quote> {
         Source sourceFromQuoteToUpdate = quoteToUpdate.getSource();
 
         if (sourceFromQuoteToUpdate != null) {
-            Source sourceFromDb = sourceRepository.findByNameAndUserId(sourceFromQuoteToUpdate.getName(), userId);
-            sourceFromQuoteToUpdate = sourceFromDb != null ? sourceFromDb : sourceFromQuoteToUpdate;
+            Optional<Source> sourceFromDb = sourceRepository.findByName(sourceFromQuoteToUpdate.getName());
+            sourceFromQuoteToUpdate = sourceFromDb.orElse(sourceFromQuoteToUpdate);
             sourceFromQuoteToUpdate = sourceRepository.save(sourceFromQuoteToUpdate);
             quoteFromDb.setSource(sourceFromQuoteToUpdate);
         }
@@ -53,43 +70,19 @@ public class QuoteService implements Update<Quote>, Delete<Quote> {
         return quoteRepository.save(quoteFromDb);
     }
 
-    private static void verifyQuoteOwnership(UUID userId, Quote quoteFromDb) throws IllegalAccessException {
-        if (!quoteFromDb.getUser().getId().equals(userId))
-            throw new IllegalAccessException("User ID does not match");
-    }
-
     @Override
-    public Quote delete(Long id, UUID userId) throws IllegalAccessException {
+    public Quote delete(Long id, User user) throws IllegalAccessException {
         Quote quote = quoteRepository.findById(id).orElseThrow();
-        verifyQuoteOwnership(userId, quote);
+        verifyQuoteOwnership(user, quote);
 
         quoteRepository.deleteById(id);
         sourceRepository.deleteEmptySources();
         return quote;
     }
 
-    public List<Quote> findAllByUserId(UUID userId) {
-        logger.info("Getting all quotes for user with ID: " + userId);
-        int page = 0;
-        int pageSize = 1000;
-
-        List<Quote> allQuotes = new ArrayList<>();
-
-        while (true) {
-            logger.info("Getting quotes from page: " + page);
-            Page<Quote> quotePage = quoteRepository.findAllByUserId(userId, PageRequest.of(page, pageSize));
-            List<Quote> quotes = quotePage.getContent();
-
-            if (quotes.isEmpty()) {
-                logger.info("No more quotes found on page: " + page);
-                break;
-            }
-
-            allQuotes.addAll(quotes);
-            page++;
-        }
-
-        return allQuotes;
+    private static void verifyQuoteOwnership(User user, Quote quoteFromDb) throws IllegalAccessException {
+        if (!quoteFromDb.getUser().equals(user))
+            throw new IllegalAccessException("User ID does not match");
     }
-    
+
 }
