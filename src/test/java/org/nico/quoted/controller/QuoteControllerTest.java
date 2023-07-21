@@ -101,6 +101,19 @@ class QuoteControllerTest {
     }
 
     @Test
+    void findBySourceIsNull() throws Exception {
+        when(quoteRepository.findBySourceIsNullAndUserId(any(Long.class), any(Pageable.class))).thenReturn(Page.empty());
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/quotes/findBySourceIsNull")
+                        .with(jwt())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(print());
+
+        verify(quoteRepository).findBySourceIsNullAndUserId(any(Long.class), any(Pageable.class));
+    }
+
+    @Test
     void createQuote() throws Exception {
         when(quoteRepository.save(any(Quote.class))).thenReturn(quote);
 

@@ -66,6 +66,17 @@ public class QuoteController { // TODO Refactor IllegalAccessException to provid
         return quoteRepository.findBySourceIdAndUserId(sourceId, user.getId(), pageable);
     }
 
+    @GetMapping("findBySourceIsNull")
+    public Page<Quote> findBySourceIsNull(Pageable pageable) {
+        logger.info("searchBySourceIsNull() called");
+
+        String email = AuthUtil.getEmail();
+        User user = userRepository.findByEmail(email).orElseThrow();
+
+        logger.info("Returning quotes for user with email" + user.getEmail());
+        return quoteRepository.findBySourceIsNullAndUserId(user.getId(), pageable);
+    }
+
     @PostMapping
     public ResponseEntity<Quote> createQuote(@RequestBody Quote quote) {
         logger.info("createQuote() called");
