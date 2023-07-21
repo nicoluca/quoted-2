@@ -76,7 +76,7 @@ class QuoteControllerTest {
     void findByText() throws Exception {
         when(quoteRepository.findByText(any(String.class), any(Long.class), any(Pageable.class))).thenReturn(Page.empty());
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/quotes/search")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/quotes/findByText")
                         .with(jwt())
                         .param("query", "Test quote")
                         .accept(MediaType.APPLICATION_JSON))
@@ -84,6 +84,20 @@ class QuoteControllerTest {
                 .andDo(print());
 
         verify(quoteRepository).findByText(any(String.class), any(Long.class), any(Pageable.class));
+    }
+
+    @Test
+    void findBySource() throws Exception {
+        when(quoteRepository.findBySourceIdAndUserId(any(Long.class), any(Long.class), any(Pageable.class))).thenReturn(Page.empty());
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/quotes/findBySource")
+                        .with(jwt())
+                        .param("sourceId", "1")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(print());
+
+        verify(quoteRepository).findBySourceIdAndUserId(any(Long.class), any(Long.class), any(Pageable.class));
     }
 
     @Test

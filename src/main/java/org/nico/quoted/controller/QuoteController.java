@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 @RestController
 @RequestMapping("/api/quotes") // Do NOT use same path as QuoteRepository - otherwise, it will override the repository
 @CrossOrigin(origins = "http://localhost:4200") // TODO Should be configurable, not hardcoded
-public class QuoteController {
+public class QuoteController { // TODO Refactor IllegalAccessException to provide meaningful error message
 
     private final QuoteService quoteService;
     private final QuoteRepository quoteRepository;
@@ -44,15 +44,26 @@ public class QuoteController {
         return quoteRepository.findAllByUserId(user.getId(), pageable);
     }
 
-    @GetMapping("/search")
-    public Page<Quote> search(@RequestParam("query") String query, Pageable pageable) {
-        logger.info("search() called");
+    @GetMapping("/findByText")
+    public Page<Quote> findByText(@RequestParam("query") String query, Pageable pageable) {
+        logger.info("searchByText() called with query " + query);
 
         String email = AuthUtil.getEmail();
         User user = userRepository.findByEmail(email).orElseThrow();
 
         logger.info("Returning quotes for user with email" + user.getEmail());
         return quoteRepository.findByText(query, user.getId(), pageable);
+    }
+
+    @GetMapping("/findBySource")
+    public Page<Quote> findBySource(@RequestParam("sourceId") long sourceId, Pageable pageable) {
+        logger.info("searchBySource() called with sourceId " + sourceId);
+
+        String email = AuthUtil.getEmail();
+        User user = userRepository.findByEmail(email).orElseThrow();
+
+        logger.info("Returning quotes for user with email" + user.getEmail());
+        return quoteRepository.findBySourceIdAndUserId(sourceId, user.getId(), pageable);
     }
 
     @PostMapping
