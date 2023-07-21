@@ -1,6 +1,7 @@
 package org.nico.quoted.controller;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.nico.quoted.domain.Quote;
 import org.nico.quoted.domain.User;
@@ -12,7 +13,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -26,7 +26,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 
 @AutoConfigureMockMvc
 @SpringBootTest
-//@ActiveProfiles("test")
 class QuoteControllerTest {
 
     @Autowired
@@ -56,9 +55,35 @@ class QuoteControllerTest {
     }
 
     @Test
+    @Order(1)
     void testUnauthorized() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/api/quotes"))
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+    }
+
+    @Test
+    void findAllByUser() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/quotes")
+                        .with(jwt())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(print());
+    }
+
+    @Test
+    void createQuote() throws Exception {
+        when(quoteRepository.save(any(Quote.class))).thenReturn(quote);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/quotes")
+                        .with(jwt())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"text\":\"Test quote\"}"))
+                .andExpect(MockMvcResultMatchers.status().isCreated())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(quote.getId()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.text").value("Test quote"))
+                .andDo(print());
+
+        verify(quoteRepository).save(any(Quote.class));
     }
 
     @Test
@@ -89,6 +114,17 @@ class QuoteControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(quote.getId()))
                 .andDo(print());
+
+        verify(quoteService).delete(any(Long.class), any(User.class));
+    }
+
+    @Test
+    public void testDeleteQuoteIllegalAccess() throws Exception {
+        when(quoteService.delete(any(Long.class), any(User.class))).thenThrow(new IllegalAccessException());
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/quotes/{id}", quote.getId())
+                .with(jwt()))
+                .andExpect(MockMvcResultMatchers.status().is4xxClientError());
 
         verify(quoteService).delete(any(Long.class), any(User.class));
     }

@@ -9,6 +9,7 @@ import org.nico.quoted.util.AuthUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -55,7 +56,7 @@ public class QuoteController {
         Quote createdQuote = quoteRepository.save(quote);
 
         logger.info("Returning created quote " + quote);
-        return ResponseEntity.ok(createdQuote);
+        return new ResponseEntity<>(createdQuote, HttpStatus.CREATED);
     }
 
     @PatchMapping("/{id}")
