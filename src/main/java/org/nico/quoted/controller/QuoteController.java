@@ -44,6 +44,17 @@ public class QuoteController {
         return quoteRepository.findAllByUserId(user.getId(), pageable);
     }
 
+    @GetMapping("/search")
+    public Page<Quote> search(@RequestParam("query") String query, Pageable pageable) {
+        logger.info("search() called");
+
+        String email = AuthUtil.getEmail();
+        User user = userRepository.findByEmail(email).orElseThrow();
+
+        logger.info("Returning quotes for user with email" + user.getEmail());
+        return quoteRepository.findByText(query, user.getId(), pageable);
+    }
+
     @PostMapping
     public ResponseEntity<Quote> createQuote(@RequestBody Quote quote) {
         logger.info("createQuote() called");
