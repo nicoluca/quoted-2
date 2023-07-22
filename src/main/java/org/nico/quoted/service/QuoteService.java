@@ -62,6 +62,7 @@ public class QuoteService implements Delete<Quote> {
         if (sourceFromQuoteToUpdate != null) {
             Optional<Source> sourceFromDb = sourceRepository.findByName(sourceFromQuoteToUpdate.getName());
             sourceFromQuoteToUpdate = sourceFromDb.orElse(sourceFromQuoteToUpdate);
+            sourceFromQuoteToUpdate.setUser(user);
             sourceFromQuoteToUpdate = sourceRepository.save(sourceFromQuoteToUpdate);
             quoteFromDb.setSource(sourceFromQuoteToUpdate);
         }

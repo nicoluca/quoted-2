@@ -39,7 +39,7 @@ class UserControllerTest {
 
     @Test
     void saveUnauthorized() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/users"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/users"))
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized());
     }
 
@@ -48,7 +48,7 @@ class UserControllerTest {
         when(userService.getAuthenticatedUser()).thenReturn(new User());
         when(userRepository.findByEmail(any())).thenReturn(Optional.of(new User()));
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/users")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/users")
                 .with(jwt()))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
@@ -61,7 +61,7 @@ class UserControllerTest {
         when(userService.getAuthenticatedUser()).thenThrow(new NoSuchElementException());
         when(userRepository.save(any())).thenReturn(new User());
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/users")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/users")
                 .with(jwt()))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 

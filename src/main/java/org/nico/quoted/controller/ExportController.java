@@ -36,7 +36,7 @@ public class ExportController {
         this.userService = userService;
     }
 
-    @GetMapping(path = "/download-quotes")
+    @GetMapping(path = "/download")
     public ResponseEntity<StreamingResponseBody> download() {
         Resource resource;
         User user = userService.getAuthenticatedUser();

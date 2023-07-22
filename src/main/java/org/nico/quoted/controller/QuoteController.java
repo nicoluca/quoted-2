@@ -99,6 +99,7 @@ public class QuoteController { // TODO Refactor IllegalAccessException to provid
         User user = userRepository.findByEmail(email).orElseThrow();
 
         quote.setId(id);
+        quote.setUser(user);
 
         if (quoteRepository.findById(id).isEmpty())
             return ResponseEntity.notFound().build();

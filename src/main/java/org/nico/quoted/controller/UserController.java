@@ -6,10 +6,7 @@ import org.nico.quoted.service.UserService;
 import org.nico.quoted.util.AuthUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.NoSuchElementException;
 
@@ -27,7 +24,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping
+    @GetMapping
     public ResponseEntity<User> save() {
         try {
             return ResponseEntity.ok(existingUser());
