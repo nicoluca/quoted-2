@@ -1,6 +1,10 @@
 package org.nico.quoted.controller;
 
+import org.nico.quoted.domain.Quote;
+import org.nico.quoted.domain.Source;
 import org.nico.quoted.domain.User;
+import org.nico.quoted.repository.QuoteRepository;
+import org.nico.quoted.repository.SourceRepository;
 import org.nico.quoted.repository.UserRepository;
 import org.nico.quoted.service.UserService;
 import org.nico.quoted.util.AuthUtil;
@@ -20,11 +24,15 @@ public class UserController {
 
     private final UserRepository userRepository;
     private final UserService userService;
+    private final SourceRepository sourceRepository;
+    private final QuoteRepository quoteRepository;
 
     @Autowired
-    public UserController(UserRepository userRepository, UserService userService) {
+    public UserController(UserRepository userRepository, UserService userService, SourceRepository sourceRepository, QuoteRepository quoteRepository) {
         this.userRepository = userRepository;
         this.userService = userService;
+        this.sourceRepository = sourceRepository;
+        this.quoteRepository = quoteRepository;
     }
 
     @GetMapping
@@ -45,8 +53,23 @@ public class UserController {
         String  email = AuthUtil.getEmail();
         User user = new User();
         user.setEmail(email);
+
+        createSampleQuote(user);
+
         return userRepository.save(user);
     }
 
+    private void createSampleQuote(User user) {
+        Source source = new Source();
+        source.setName("Sample Source");
+        source.setUser(user);
+        source = sourceRepository.save(source);
+
+        Quote quote = new Quote();
+        quote.setText("Sample Quote");
+        quote.setSource(source);
+        quote.setUser(user);
+        quoteRepository.save(quote);
+    }
 
 }
