@@ -12,6 +12,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -79,8 +81,8 @@ class QuoteRepositoryTest {
     }
 
     @Test
-    void testFindBySourceId() {
-        Long sourceId = 1L; // Replace with the actual source ID
+    void testFindBySourceIdPageable() {
+        long sourceId = 1L;
         Page<Quote> quotes = quoteRepository.findBySourceIdAndUserId(sourceId, user.getId(), pageable);
 
         assertNotNull(quotes);
@@ -88,8 +90,26 @@ class QuoteRepositoryTest {
     }
 
     @Test
-    void testFindBySourceIsNull() {
+    void testFindBySourceId() {
+        long sourceId = 1L;
+        List<Quote> quotes = quoteRepository.findBySourceIdAndUserId(sourceId, user.getId());
+
+        assertNotNull(quotes);
+        assertTrue(quotes.isEmpty());
+
+    }
+
+    @Test
+    void testFindBySourceIsNullPageable() {
         Page<Quote> quotes = quoteRepository.findBySourceIsNullAndUserId(user.getId(), pageable);
+
+        assertNotNull(quotes);
+        assertFalse(quotes.isEmpty());
+    }
+
+    @Test
+    void testFindBySourceIsNull() {
+        List<Quote> quotes = quoteRepository.findBySourceIsNullAndUserId(user.getId());
 
         assertNotNull(quotes);
         assertFalse(quotes.isEmpty());

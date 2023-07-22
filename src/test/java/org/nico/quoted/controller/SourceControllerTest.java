@@ -2,7 +2,6 @@ package org.nico.quoted.controller;
 
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.nico.quoted.domain.Source;
 import org.nico.quoted.domain.User;
 import org.nico.quoted.repository.SourceRepository;
 import org.nico.quoted.repository.UserRepository;
@@ -14,7 +13,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-
 
 import java.util.Optional;
 

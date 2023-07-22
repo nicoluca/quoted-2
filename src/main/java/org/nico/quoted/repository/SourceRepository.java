@@ -9,11 +9,14 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface SourceRepository extends PagingAndSortingRepository<Source, Long>, CrudRepository<Source, Long> {
 
     Page<Source> findAllByUserId(long userId, Pageable pageable);
+
+    List<Source> findAllByUserId(long userId);
 
     @Transactional
     @Modifying

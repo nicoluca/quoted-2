@@ -8,6 +8,7 @@ import org.nico.quoted.domain.Source;
 import org.nico.quoted.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.Optional;
 
@@ -73,5 +74,15 @@ class SourceRepositoryTest {
 
         assertTrue(sourceRepository.findByName(SOURCE_NAME).isEmpty());
         assertEquals(0, sourceRepository.count());
+    }
+
+    @Test
+    void testFindAllByUserId() {
+        assertEquals(1, sourceRepository.findAllByUserId(user.getId()).size());
+    }
+
+    @Test
+    void findAllByUserIdPageable() {
+        assertEquals(1, sourceRepository.findAllByUserId(user.getId(), PageRequest.of(0, 10)).getTotalElements());
     }
 }

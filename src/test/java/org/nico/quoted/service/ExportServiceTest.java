@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.nico.quoted.domain.Quote;
 import org.nico.quoted.domain.Source;
 import org.nico.quoted.domain.User;
+import org.nico.quoted.repository.QuoteRepository;
 import org.nico.quoted.repository.SourceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,7 +31,7 @@ public class ExportServiceTest {
     private ExportService exportService;
 
     @MockBean
-    private QuoteService quoteService;
+    private QuoteRepository quoteRepository;
 
     @MockBean
     private SourceRepository sourceRepository;
@@ -59,13 +60,17 @@ public class ExportServiceTest {
                             .build());
 
         // Mocks
-        when(quoteService.findAllByUser(any(User.class))).thenReturn(quotes);
+        when(sourceRepository.findAllByUserId(anyLong())).thenReturn(sources);
+        when(quoteRepository.findBySourceIdAndUserId(anyLong(), anyLong())).thenReturn(quotes);
+        when(quoteRepository.findBySourceIsNullAndUserId(anyLong())).thenReturn(quotes);
 
         //  Execution
         Resource zipResource = exportService.generateMarkdownZip(new User());
 
         // Verification
-        verify(quoteService, times(1)).findAllByUser(any(User.class));
+        verify(sourceRepository, times(1)).findAllByUserId(anyLong());
+        verify(quoteRepository, times(1)).findBySourceIdAndUserId(anyLong(), anyLong());
+        verify(quoteRepository, times(1)).findBySourceIsNullAndUserId(anyLong());
 
         // Asserts
         assertTrue(zipResource.exists());
