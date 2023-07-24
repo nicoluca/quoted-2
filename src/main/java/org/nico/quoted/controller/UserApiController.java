@@ -4,6 +4,7 @@ import org.nico.quoted.domain.Quote;
 import org.nico.quoted.domain.User;
 import org.nico.quoted.repository.QuoteRepository;
 import org.nico.quoted.repository.UserRepository;
+import org.nico.quoted.util.SecretUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +14,9 @@ import java.util.logging.Logger;
 
 // TODO
 @RestController
-@RequestMapping("/post-quote")
+@RequestMapping("/user-api")
 @CrossOrigin(origins = "http://localhost:4200") // TODO Needs to accept mobile app?
-public class PostController {
+public class UserApiController {
 
     private final UserRepository userRepository;
     private final QuoteRepository quoteRepository;
@@ -23,27 +24,28 @@ public class PostController {
     private final Logger logger = Logger.getLogger(getClass().getName());
 
     @Autowired
-    public PostController(UserRepository userRepository, QuoteRepository quoteRepository) {
+    public UserApiController(UserRepository userRepository, QuoteRepository quoteRepository) {
         this.userRepository = userRepository;
         this.quoteRepository = quoteRepository;
     }
 
     // TODO
-    // Implement secret
-    // Disable JWT for this endpoint
-    // Test with Postman
+    // Implement secret - Done
+    // Disable JWT for this endpoint - Done
+    // Test with Postman - Done
     // Show secret in UI to user
     // Test Apple shortcut
 
-    @PostMapping
-    public ResponseEntity<Quote> createQuote(@RequestBody Quote quote, @RequestParam("secret") String secret, @RequestParam("email") String email) {
-        logger.info("createQuote() called with quote " + quote + " and secret " + secret + " and email " + email);
+    @PostMapping("/post-quote")
+    public ResponseEntity<Quote> createQuote(@RequestBody Quote quote, @RequestParam("secret") int secret, @RequestParam("email") String email) {
+        logger.info("createQuote() called with quote " + quote + " and secret and email " + email);
 
         if (!isCorrectSecret(secret, email)) {
             logger.warning("Incorrect secret" + secret + " for email " + email);
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
+        logger.info("Correct secret for email " + email);
         User user = userRepository.findByEmail(email).orElseThrow();
 
         quote.setUser(user);
@@ -53,12 +55,8 @@ public class PostController {
         return new ResponseEntity<>(createdQuote, HttpStatus.CREATED);
     }
 
-    private boolean isCorrectSecret(String secret, String email) {
-        // TODO
-        if (secret.equals("secret")) {
-            return true;
-        }
-        return false;
+    private boolean isCorrectSecret(int secret, String email) {
+        return secret == SecretUtil.getSecret(email);
     }
 
 

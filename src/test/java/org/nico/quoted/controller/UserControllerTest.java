@@ -2,6 +2,8 @@ package org.nico.quoted.controller;
 
 import org.junit.jupiter.api.Test;
 import org.nico.quoted.domain.User;
+import org.nico.quoted.repository.QuoteRepository;
+import org.nico.quoted.repository.SourceRepository;
 import org.nico.quoted.repository.UserRepository;
 import org.nico.quoted.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,12 @@ class UserControllerTest {
     @MockBean
     private UserRepository userRepository;
 
+    @MockBean
+    private SourceRepository sourceRepository;
+
+    @MockBean
+    private QuoteRepository quoteRepository;
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -59,6 +67,8 @@ class UserControllerTest {
     void saveNewUser() throws Exception {
         when(userService.getAuthenticatedUser()).thenThrow(new NoSuchElementException());
         when(userRepository.save(any())).thenReturn(new User());
+        when(sourceRepository.save(any())).thenReturn(null);
+        when(quoteRepository.save(any())).thenReturn(null);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/users")
                 .with(jwt()))
@@ -66,5 +76,7 @@ class UserControllerTest {
 
         verify(userService).getAuthenticatedUser();
         verify(userRepository).save(any());
+        verify(sourceRepository).save(any());
+        verify(quoteRepository).save(any());
     }
 }

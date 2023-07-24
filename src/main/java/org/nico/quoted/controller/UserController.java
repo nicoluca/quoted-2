@@ -1,6 +1,7 @@
 package org.nico.quoted.controller;
 
 import org.nico.quoted.domain.Quote;
+import org.nico.quoted.domain.Secret;
 import org.nico.quoted.domain.Source;
 import org.nico.quoted.domain.User;
 import org.nico.quoted.repository.QuoteRepository;
@@ -8,6 +9,7 @@ import org.nico.quoted.repository.SourceRepository;
 import org.nico.quoted.repository.UserRepository;
 import org.nico.quoted.service.UserService;
 import org.nico.quoted.util.AuthUtil;
+import org.nico.quoted.util.SecretUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -38,25 +40,33 @@ public class UserController {
     @GetMapping
     public ResponseEntity<User> save() {
         try {
-            return ResponseEntity.ok(existingUser());
+            return ResponseEntity.ok(retrieveExistingUser());
         } catch (NoSuchElementException e) {
-            return ResponseEntity.ok(newUser());
+            return ResponseEntity.ok(createNewUser());
         }
     }
 
-    private User existingUser() {
+    @GetMapping("/get-secret")
+    public ResponseEntity<Secret> getSecretNumber() {
+        String email = AuthUtil.getEmail();
+        int secretNumber = SecretUtil.getSecret(email);
+        Secret secret = new Secret(secretNumber);
+        return ResponseEntity.ok(secret);
+    }
+
+    private User retrieveExistingUser() {
         String email = userService.getAuthenticatedUser().getEmail();
         return userRepository.findByEmail(email).orElseThrow();
     }
 
-    private User newUser() {
+    private User createNewUser() {
         String  email = AuthUtil.getEmail();
         User user = new User();
         user.setEmail(email);
+        user = userRepository.save(user); // Set ID
 
         createSampleQuote(user);
-
-        return userRepository.save(user);
+        return user;
     }
 
     private void createSampleQuote(User user) {
