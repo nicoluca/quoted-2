@@ -1,6 +1,7 @@
 package org.nico.quoted.config;
 
 import com.okta.spring.boot.oauth.Okta;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -12,6 +13,9 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 
 @Configuration
 public class SecurityConfig {
+
+    @Value("${quoted.endpoints.secured}")
+    private String[] securedEndpoints;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {

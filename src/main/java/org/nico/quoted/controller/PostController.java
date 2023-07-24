@@ -12,7 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.logging.Logger;
 
 // TODO
-@RestController("/api/post-quote")
+@RestController
+@RequestMapping("/post-quote")
 @CrossOrigin(origins = "http://localhost:4200") // TODO Needs to accept mobile app?
 public class PostController {
 
@@ -53,7 +54,11 @@ public class PostController {
     }
 
     private boolean isCorrectSecret(String secret, String email) {
-        return false; // TODO
+        // TODO
+        if (secret.equals("secret")) {
+            return true;
+        }
+        return false;
     }
 
 
