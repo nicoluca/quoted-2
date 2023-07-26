@@ -45,7 +45,7 @@ public class ExportController {
             resource = exportService.generateMarkdownZip(user);
         } catch (IOException e) {
             logger.severe("Error generating zip file: " + e.getMessage());
-            return ResponseEntity.internalServerError().build();
+            throw new RuntimeException(e);
         }
 
         HttpHeaders headers = new HttpHeaders();

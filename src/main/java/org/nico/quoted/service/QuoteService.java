@@ -3,6 +3,7 @@ package org.nico.quoted.service;
 import org.nico.quoted.domain.Quote;
 import org.nico.quoted.domain.Source;
 import org.nico.quoted.domain.User;
+import org.nico.quoted.exception.AuthenticationException;
 import org.nico.quoted.repository.QuoteRepository;
 import org.nico.quoted.repository.SourceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +50,7 @@ public class QuoteService implements Delete<Quote> {
     }
 
     @Transactional
-    public Quote update(Quote quoteToUpdate, User user) throws IllegalAccessException {
+    public Quote update(Quote quoteToUpdate, User user) {
         Quote quoteFromDb = quoteRepository.findById(quoteToUpdate.getId()).orElseThrow();
 
         verifyQuoteOwnership(user, quoteFromDb);
@@ -72,7 +73,7 @@ public class QuoteService implements Delete<Quote> {
     }
 
     @Override
-    public Quote delete(Long id, User user) throws IllegalAccessException {
+    public Quote delete(Long id, User user) {
         Quote quote = quoteRepository.findById(id).orElseThrow();
         verifyQuoteOwnership(user, quote);
 
@@ -81,9 +82,9 @@ public class QuoteService implements Delete<Quote> {
         return quote;
     }
 
-    private static void verifyQuoteOwnership(User user, Quote quoteFromDb) throws IllegalAccessException {
+    private static void verifyQuoteOwnership(User user, Quote quoteFromDb) {
         if (!quoteFromDb.getUser().equals(user))
-            throw new IllegalAccessException("User ID does not match");
+            throw new AuthenticationException("You are not authorized to perform this action.");
     }
 
 }

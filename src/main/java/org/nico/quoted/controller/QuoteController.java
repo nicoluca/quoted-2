@@ -104,11 +104,7 @@ public class QuoteController { // TODO Refactor IllegalAccessException to provid
         if (quoteRepository.findById(id).isEmpty())
             return ResponseEntity.notFound().build();
 
-        try {
-            quote = quoteService.update(quote, user);
-        } catch (IllegalAccessException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        quote = quoteService.update(quote, user);
 
         logger.info("Returning updated quote " + quote.getText() + " for user with email" + user.getEmail());
         return ResponseEntity.ok(quote); // TODO Needs to catch IllegalAccessException
@@ -121,11 +117,7 @@ public class QuoteController { // TODO Refactor IllegalAccessException to provid
         String email = AuthUtil.getEmail();
         User user = userRepository.findByEmail(email).orElseThrow();
 
-        try {
-            logger.info("Returning deleted quote " + id + " for user with email: " + user.getEmail());
-            return ResponseEntity.ok(quoteService.delete(id, user));
-        } catch (IllegalAccessException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        logger.info("Returning deleted quote " + id + " for user with email: " + user.getEmail());
+        return ResponseEntity.ok(quoteService.delete(id, user));
     }
 }

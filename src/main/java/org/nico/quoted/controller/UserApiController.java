@@ -2,6 +2,7 @@ package org.nico.quoted.controller;
 
 import org.nico.quoted.domain.Quote;
 import org.nico.quoted.domain.User;
+import org.nico.quoted.exception.AuthenticationException;
 import org.nico.quoted.repository.QuoteRepository;
 import org.nico.quoted.repository.UserRepository;
 import org.nico.quoted.util.SecretUtil;
@@ -38,7 +39,7 @@ public class UserApiController {
 
         if (!isCorrectSecret(secret, email)) {
             logger.warning("Incorrect secret" + secret + " for email " + email);
-            throw new IllegalArgumentException("Incorrect secret or email.");
+            throw new AuthenticationException("Incorrect secret or email.");
         }
 
         if (!isValidQuote(quote)) {
