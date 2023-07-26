@@ -29,20 +29,21 @@ public class UserApiController {
         this.quoteRepository = quoteRepository;
     }
 
-    // TODO
-    // Implement secret - Done
-    // Disable JWT for this endpoint - Done
-    // Test with Postman - Done
-    // Show secret in UI to user
-    // Test Apple shortcut
-
     @PostMapping("/post-quote")
-    public ResponseEntity<Quote> createQuote(@RequestBody Quote quote, @RequestParam("secret") int secret, @RequestParam("email") String email) {
+    public ResponseEntity<Quote> createQuote(@RequestBody Quote quote,
+                                             @RequestParam("secret") int secret,
+                                             @RequestParam("email") String email) {
+
         logger.info("createQuote() called with quote " + quote + " and secret and email " + email);
 
         if (!isCorrectSecret(secret, email)) {
             logger.warning("Incorrect secret" + secret + " for email " + email);
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            throw new IllegalArgumentException("Incorrect secret or email.");
+        }
+
+        if (!isValidQuote(quote)) {
+            logger.warning("Invalid quote " + quote);
+            throw new IllegalArgumentException("Invalid quote,");
         }
 
         logger.info("Correct secret for email " + email);
@@ -55,9 +56,12 @@ public class UserApiController {
         return new ResponseEntity<>(createdQuote, HttpStatus.CREATED);
     }
 
+    private boolean isValidQuote(Quote quote) {
+        return quote != null && quote.getText() != null && !quote.getText().isBlank();
+    }
+
     private boolean isCorrectSecret(int secret, String email) {
         return secret == SecretUtil.getSecret(email);
     }
-
 
 }
