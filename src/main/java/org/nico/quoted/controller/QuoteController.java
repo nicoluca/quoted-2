@@ -3,9 +3,8 @@ package org.nico.quoted.controller;
 import org.nico.quoted.domain.Quote;
 import org.nico.quoted.domain.User;
 import org.nico.quoted.repository.QuoteRepository;
-import org.nico.quoted.repository.UserRepository;
 import org.nico.quoted.service.QuoteService;
-import org.nico.quoted.util.AuthUtil;
+import org.nico.quoted.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,27 +17,26 @@ import java.util.logging.Logger;
 @RestController
 @RequestMapping("/api/quotes") // Do NOT use same path as QuoteRepository - otherwise, it will override the repository
 @CrossOrigin(origins = "http://localhost:4200") // TODO Should be configurable, not hardcoded
-public class QuoteController { // TODO Refactor IllegalAccessException to provide meaningful error message
+public class QuoteController {
 
     private final QuoteService quoteService;
     private final QuoteRepository quoteRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     private final Logger logger = Logger.getLogger(getClass().getName());
 
     @Autowired
-    public QuoteController(QuoteService quoteService, QuoteRepository quoteRepository, UserRepository userRepository) {
+    public QuoteController(QuoteService quoteService, QuoteRepository quoteRepository, UserService userService) {
         this.quoteService = quoteService;
         this.quoteRepository = quoteRepository;
-        this.userRepository = userRepository;
+        this.userService = userService;
     }
 
     @GetMapping
     public Page<Quote> findAllByUser(Pageable pageable) {
         logger.info("findAllByUserId() called");
 
-        String email = AuthUtil.getEmail();
-        User user = userRepository.findByEmail(email).orElseThrow();
+        User user = userService.getAuthenticatedUser();
 
         logger.info("Returning quotes for user with email" + user.getEmail());
         return quoteRepository.findAllByUserId(user.getId(), pageable);
@@ -48,8 +46,7 @@ public class QuoteController { // TODO Refactor IllegalAccessException to provid
     public Page<Quote> findByText(@RequestParam("query") String query, Pageable pageable) {
         logger.info("searchByText() called with query " + query);
 
-        String email = AuthUtil.getEmail();
-        User user = userRepository.findByEmail(email).orElseThrow();
+        User user = userService.getAuthenticatedUser();
 
         logger.info("Returning quotes for user with email" + user.getEmail());
         return quoteRepository.findByText(query, user.getId(), pageable);
@@ -59,8 +56,7 @@ public class QuoteController { // TODO Refactor IllegalAccessException to provid
     public Page<Quote> findBySource(@RequestParam("sourceId") long sourceId, Pageable pageable) {
         logger.info("searchBySource() called with sourceId " + sourceId);
 
-        String email = AuthUtil.getEmail();
-        User user = userRepository.findByEmail(email).orElseThrow();
+        User user = userService.getAuthenticatedUser();
 
         logger.info("Returning quotes for user with email" + user.getEmail());
         return quoteRepository.findBySourceIdAndUserId(sourceId, user.getId(), pageable);
@@ -70,8 +66,7 @@ public class QuoteController { // TODO Refactor IllegalAccessException to provid
     public Page<Quote> findBySourceIsNull(Pageable pageable) {
         logger.info("searchBySourceIsNull() called");
 
-        String email = AuthUtil.getEmail();
-        User user = userRepository.findByEmail(email).orElseThrow();
+        User user = userService.getAuthenticatedUser();
 
         logger.info("Returning quotes for user with email" + user.getEmail());
         return quoteRepository.findBySourceIsNullAndUserId(user.getId(), pageable);
@@ -81,11 +76,8 @@ public class QuoteController { // TODO Refactor IllegalAccessException to provid
     public ResponseEntity<Quote> createQuote(@RequestBody Quote quote) {
         logger.info("createQuote() called");
 
-        String email = AuthUtil.getEmail();
-        User user = userRepository.findByEmail(email).orElseThrow();
-
+        User user = userService.getAuthenticatedUser();
         quote.setUser(user);
-
         Quote createdQuote = quoteRepository.save(quote);
 
         logger.info("Returning created quote " + quote);
@@ -95,29 +87,24 @@ public class QuoteController { // TODO Refactor IllegalAccessException to provid
     @PatchMapping("/{id}")
     public ResponseEntity<Quote> patchQuote(@PathVariable("id") long id, @RequestBody Quote quote) {
         logger.info("updateQuote() called");
-        String email = AuthUtil.getEmail();
-        User user = userRepository.findByEmail(email).orElseThrow();
 
+        User user = userService.getAuthenticatedUser();
         quote.setId(id);
         quote.setUser(user);
-
-        if (quoteRepository.findById(id).isEmpty())
-            return ResponseEntity.notFound().build();
-
         quote = quoteService.update(quote, user);
 
         logger.info("Returning updated quote " + quote.getText() + " for user with email" + user.getEmail());
-        return ResponseEntity.ok(quote); // TODO Needs to catch IllegalAccessException
+        return ResponseEntity.ok(quote);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Quote> deleteQuote(@PathVariable("id") long id) {
         logger.info("deleteQuote() called");
 
-        String email = AuthUtil.getEmail();
-        User user = userRepository.findByEmail(email).orElseThrow();
+        User user = userService.getAuthenticatedUser();
 
+        Quote quoteToDelete = quoteService.delete(id, user);
         logger.info("Returning deleted quote " + id + " for user with email: " + user.getEmail());
-        return ResponseEntity.ok(quoteService.delete(id, user));
+        return ResponseEntity.ok(quoteToDelete);
     }
 }

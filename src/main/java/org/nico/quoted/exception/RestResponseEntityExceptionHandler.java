@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.util.NoSuchElementException;
+
 @RestControllerAdvice
 public class RestResponseEntityExceptionHandler
         extends ResponseEntityExceptionHandler {
@@ -17,6 +19,15 @@ public class RestResponseEntityExceptionHandler
     protected ResponseEntity<Object> handleAuthenticationException(
             RuntimeException ex, WebRequest request) {
         String bodyOfResponse = "Authentication failed:\n" + ex.getMessage();
+        return handleExceptionInternal(ex, bodyOfResponse,
+                new HttpHeaders(), HttpStatus.UNAUTHORIZED, request);
+    }
+
+    @ExceptionHandler(value
+            = { NoSuchElementException.class })
+    protected ResponseEntity<Object> handleNoSuchElementException(
+            RuntimeException ex, WebRequest request) {
+        String bodyOfResponse = "The requested resource was not found:\n" + ex.getMessage();
         return handleExceptionInternal(ex, bodyOfResponse,
                 new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }

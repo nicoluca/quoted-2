@@ -1,6 +1,7 @@
 package org.nico.quoted.service;
 
 import org.nico.quoted.domain.User;
+import org.nico.quoted.exception.AuthenticationException;
 import org.nico.quoted.repository.UserRepository;
 import org.nico.quoted.util.AuthUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,7 @@ public class UserService { // TODO User deletion
 
     public User getAuthenticatedUser() {
         String email = AuthUtil.getEmail();
-        return userRepository.findByEmail(email).orElseThrow();
+        return userRepository.findByEmail(email).orElseThrow(() -> new AuthenticationException("User not found"));
     }
 
 }

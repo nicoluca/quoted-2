@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -51,7 +52,8 @@ public class QuoteService implements Delete<Quote> {
 
     @Transactional
     public Quote update(Quote quoteToUpdate, User user) {
-        Quote quoteFromDb = quoteRepository.findById(quoteToUpdate.getId()).orElseThrow();
+        Quote quoteFromDb = quoteRepository.findById(quoteToUpdate.getId())
+                .orElseThrow(() -> new NoSuchElementException("Quote not found."));
 
         verifyQuoteOwnership(user, quoteFromDb);
 
