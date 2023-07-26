@@ -16,7 +16,6 @@ import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/api/quotes") // Do NOT use same path as QuoteRepository - otherwise, it will override the repository
-@CrossOrigin(origins = "http://localhost:4200") // TODO Should be configurable, not hardcoded
 public class QuoteController {
 
     private final QuoteService quoteService;

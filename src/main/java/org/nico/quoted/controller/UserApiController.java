@@ -16,7 +16,6 @@ import java.util.logging.Logger;
 // TODO
 @RestController
 @RequestMapping("/user-api")
-@CrossOrigin(origins = "http://localhost:4200") // TODO Needs to accept mobile app?
 public class UserApiController {
 
     private final UserRepository userRepository;
@@ -51,7 +50,7 @@ public class UserApiController {
         User user = userRepository.findByEmail(email).orElseThrow();
 
         quote.setUser(user);
-        Quote createdQuote = quoteRepository.save(quote);
+        Quote createdQuote = quoteRepository.save(quote); // TODO Test if null sources are handled correctly
 
         logger.info("Returning created quote " + quote);
         return new ResponseEntity<>(createdQuote, HttpStatus.CREATED);

@@ -8,12 +8,20 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.logging.Logger;
 
 @Configuration
-public class RestConfig implements RepositoryRestConfigurer {
+public class RestConfig implements RepositoryRestConfigurer, WebMvcConfigurer {
+
+    private final Logger logger = java.util.logging.Logger.getLogger(getClass().getName());
 
     @Value("${allowed.origins}")
     private String[] allowedOrigins;
+
+    @Value("${allowed.methods}")
+    private String[] allowedMethods;
 
     private final EntityManager entityManager;
 
@@ -26,18 +34,23 @@ public class RestConfig implements RepositoryRestConfigurer {
     public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config, CorsRegistry cors) {
 
         exposeEntityIds(config);
-        configureCorsAndAllowedMethods(config, cors);
-
         RepositoryRestConfigurer.super.configureRepositoryRestConfiguration(config, cors);
+
     }
 
-    private void configureCorsAndAllowedMethods(RepositoryRestConfiguration config, CorsRegistry corsRegistry) {
-        corsRegistry.addMapping(config.getBasePath() + "/**")
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        logger.info("Configuring CORS and allowed methods...");
+        logger.info("Allowed origins: " + String.join(", ", this.allowedOrigins));
+        logger.info("Allowed methods: " + String.join(", ", this.allowedMethods));
+
+        registry.addMapping("/api/**")
                 .allowedOrigins(this.allowedOrigins)
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH"); // TODO Granularize allowed methods
+                .allowedMethods(this.allowedMethods);
     }
 
     private void exposeEntityIds(RepositoryRestConfiguration config) {
+        logger.info("Applying configuration to expose entity ids...");
 
         var entities = entityManager.getMetamodel().getEntities();
 
