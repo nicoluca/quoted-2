@@ -2,6 +2,7 @@ package org.nico.quoted.service;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
+import org.nico.quoted.exception.AuthenticationException;
 import org.nico.quoted.repository.UserRepository;
 import org.nico.quoted.util.AuthUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,7 @@ class UserServiceTest {
         try (MockedStatic<AuthUtil> mockedAuthUtil = mockStatic(AuthUtil.class)) {
             mockedAuthUtil.when(AuthUtil::getEmail).thenReturn(null);
             when(userRepository.findByEmail(any())).thenReturn(Optional.empty());
-            assertThrows(NoSuchElementException.class, () -> userService.getAuthenticatedUser());
+            assertThrows(AuthenticationException.class, () -> userService.getAuthenticatedUser());
             verify(userRepository).findByEmail(any());
         }
     }

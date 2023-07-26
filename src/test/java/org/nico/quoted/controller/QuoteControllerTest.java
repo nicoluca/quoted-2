@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.nico.quoted.domain.Quote;
 import org.nico.quoted.domain.User;
+import org.nico.quoted.exception.AuthenticationException;
 import org.nico.quoted.repository.QuoteRepository;
 import org.nico.quoted.repository.UserRepository;
 import org.nico.quoted.service.QuoteService;
@@ -163,11 +164,11 @@ class QuoteControllerTest {
 
     @Test
     public void testDeleteQuoteIllegalAccess() throws Exception {
-        when(quoteService.delete(any(Long.class), any(User.class))).thenThrow(new IllegalAccessException());
+        when(quoteService.delete(any(Long.class), any(User.class))).thenThrow(new AuthenticationException());
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/quotes/{id}", quote.getId())
                 .with(jwt()))
-                .andExpect(MockMvcResultMatchers.status().is4xxClientError());
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
 
         verify(quoteService).delete(any(Long.class), any(User.class));
     }

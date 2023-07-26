@@ -22,6 +22,7 @@ import java.io.OutputStream;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
@@ -77,11 +78,8 @@ class ExportControllerTest {
         doNothing().when(exportService).cleanUp();
         when(userService.getAuthenticatedUser()).thenReturn(new User());
 
-        ResponseEntity<StreamingResponseBody> response = exportController.download();
+        assertThrows(RuntimeException.class, () -> exportController.download());
 
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-
-        // Verify cleanup method not called
         verify(exportService, never()).cleanUp();
         verify(userService).getAuthenticatedUser();
     }

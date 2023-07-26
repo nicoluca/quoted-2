@@ -20,7 +20,7 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 @Service
-public class QuoteService implements Delete<Quote> {
+public class QuoteService implements Delete<Quote>, Update<Quote>, FindAll<Quote> {
 
     private final SourceRepository sourceRepository;
     private final QuoteRepository quoteRepository;
@@ -33,7 +33,7 @@ public class QuoteService implements Delete<Quote> {
         this.quoteRepository = quoteRepository;
     }
 
-    List<Quote> findAllByUser(User user) {
+    public List<Quote> findAll(User user) {
         Pageable pageable = PageRequest.of(0, 1000);
         List<Quote> quotes = new ArrayList<>();
 
