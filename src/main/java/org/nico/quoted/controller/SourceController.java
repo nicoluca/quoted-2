@@ -37,7 +37,7 @@ public class SourceController {
         String email = AuthUtil.getEmail();
         User user = userRepository.findByEmail(email).orElseThrow();
 
-        logger.info("Returning quotes for user with email" + user.getEmail());
+        logger.info("Returning quotes for user with email: " + user.getEmail());
         return sourceRepository.findAllByUserId(user.getId(), pageable);
     }
 

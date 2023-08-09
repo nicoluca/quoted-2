@@ -2,6 +2,7 @@ package org.nico.quoted.controller;
 
 import org.junit.jupiter.api.Test;
 import org.nico.quoted.domain.User;
+import org.nico.quoted.exception.AuthenticationException;
 import org.nico.quoted.repository.QuoteRepository;
 import org.nico.quoted.repository.SourceRepository;
 import org.nico.quoted.repository.UserRepository;
@@ -13,9 +14,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-
-import java.util.NoSuchElementException;
-import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -53,19 +51,17 @@ class UserControllerTest {
     @Test
     void saveExistingUser() throws Exception {
         when(userService.getAuthenticatedUser()).thenReturn(new User());
-        when(userRepository.findByEmail(any())).thenReturn(Optional.of(new User()));
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/users")
                 .with(jwt()))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
         verify(userService).getAuthenticatedUser();
-        verify(userRepository).findByEmail(any());
     }
 
     @Test
     void saveNewUser() throws Exception {
-        when(userService.getAuthenticatedUser()).thenThrow(new NoSuchElementException());
+        when(userService.getAuthenticatedUser()).thenThrow(new AuthenticationException("User not found"));
         when(userRepository.save(any())).thenReturn(new User());
         when(sourceRepository.save(any())).thenReturn(null);
         when(quoteRepository.save(any())).thenReturn(null);

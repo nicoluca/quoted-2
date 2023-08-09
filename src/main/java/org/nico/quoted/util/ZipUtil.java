@@ -12,7 +12,7 @@ public class ZipUtil {
 
     private static final Logger logger = Logger.getLogger(ZipUtil.class.getName());
 
-    // From https://stackoverflow.com/a/32052016/11292952
+    // Adapted from https://stackoverflow.com/a/32052016/11292952
     public static void pack(String sourceDirPath, String zipFilePath) throws IOException {
         if (sourceDirPath == null || sourceDirPath.isBlank())
             throw new IllegalArgumentException("Source directory path cannot be null or blank");
