@@ -6,6 +6,7 @@ import org.nico.quoted.repository.QuoteRepository;
 import org.nico.quoted.service.QuoteService;
 import org.nico.quoted.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,9 @@ public class QuoteController {
     private final QuoteService quoteService;
     private final QuoteRepository quoteRepository;
     private final UserService userService;
+
+    @Value("${quoted.max_quotes_per_user}")
+    private int maxQuotesPerUser;
 
     private final Logger logger = Logger.getLogger(getClass().getName());
 
@@ -77,6 +81,11 @@ public class QuoteController {
 
         User user = userService.getAuthenticatedUser();
         quote.setUser(user);
+
+        if (quoteRepository.countByUserId(user.getId()) >= this.maxQuotesPerUser) {
+            logger.warning("User with email " + user.getEmail() + " has reached the maximum number of quotes of " + this.maxQuotesPerUser);
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
 
         Quote createdQuote = quoteRepository.save(quote);
 
