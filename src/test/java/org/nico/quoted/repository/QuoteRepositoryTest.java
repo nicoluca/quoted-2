@@ -114,4 +114,10 @@ class QuoteRepositoryTest {
         assertNotNull(quotes);
         assertFalse(quotes.isEmpty());
     }
+
+    @Test
+    void testCountByUserId() {
+        long count = quoteRepository.countByUserId(user.getId());
+        assertEquals(1, count);
+    }
 }

@@ -30,4 +30,6 @@ public interface QuoteRepository extends PagingAndSortingRepository<Quote, Long>
 
     List<Quote> findBySourceIsNullAndUserId(long userId);
 
+    long countByUserId(long userId);
+
 }

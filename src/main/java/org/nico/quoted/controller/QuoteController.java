@@ -77,6 +77,7 @@ public class QuoteController {
 
         User user = userService.getAuthenticatedUser();
         quote.setUser(user);
+
         Quote createdQuote = quoteRepository.save(quote);
 
         logger.info("Returning created quote " + quote);
