@@ -22,7 +22,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(configurer ->
                         configurer
-                                .requestMatchers("/api/**")
+                                .requestMatchers(securedEndpoints)
                                 .authenticated()
                                 .anyRequest().permitAll())
                 .oauth2ResourceServer((oauth2) -> oauth2
@@ -40,7 +40,5 @@ public class SecurityConfig {
 
         return http.build();
     }
-
-    // CORS Configuration
 
 }

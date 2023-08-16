@@ -1,0 +1,23 @@
+# Application Config
+quoted.out-zip=quotes-export.zip
+quoted.date-time-format=yyyy-MM-dd HH:mm
+quoted.endpoints.secured=/api/**
+quoted.secret.salt=YOUR_SALT_HERE
+quoted.max_quotes_per_user=10
+
+
+# Test DB
+spring.datasource.driver-class-name=org.h2.Driver
+spring.datasource.url=jdbc:h2:mem:db;DB_CLOSE_DELAY=-1
+spring.jpa.hibernate.ddl-auto=create-drop
+
+# CORS
+allowed.origins=http://localhost:4200
+allowed.methods=GET,POST,DELETE,PATCH
+
+# Okta
+okta.oauth2.client-id=YOUR_CLIENT_ID
+okta.oauth2.issuer=https://[YOUR_OKTA_URL]/oauth2/default
+
+# Testing
+spring.cloud.discovery.enabled=false

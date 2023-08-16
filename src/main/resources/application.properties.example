@@ -1,16 +1,23 @@
+# Application Config
+quoted.out-zip=quotes-export.zip
+quoted.date-time-format=yyyy-MM-dd HH:mm
+quoted.endpoints.secured=/api/**
+quoted.secret.salt=YOUR-SECRET-SALT
+quoted.max_quotes_per_user=1000
+
 # Logging
 logging.level.root=WARN
-logging.level.org.springframework.web=INFO
+logging.level.org.springframework.web=WARN
 logging.level.org.hibernate=WARN
 
 # Server
 spring.data.rest.base-path=/api
 server.port=8080
-
+server.address=YOUR-SERVER-IP
 # Database
-spring.datasource.url=jdbc:postgresql://localhost:5432/quotes
-spring.datasource.username=USERNAME
-spring.datasource.password=PASSWORD
+spring.datasource.url=YOUR-DB-URL
+spring.datasource.username=YOUR-DB-USER
+spring.datasource.password=YOUR-DB-PASSWORD
 spring.jpa.hibernate.ddl-auto=validate
 
 # Dev tools
@@ -18,7 +25,13 @@ spring.devtools.livereload.enabled=true
 
 # CORS
 allowed.origins=http://localhost:4200
+allowed.methods=GET,POST,DELETE,PATCH
 
 # Spring Data Rest
 spring.data.rest.default-page-size=20
 spring.data.rest.detection-strategy=ANNOTATED
+
+# Okta
+okta.oauth2.client-id=YOUR-CLIENT-ID
+okta.oauth2.issuer=https://[YOUR-OKTA-URL]/oauth2/default
+
